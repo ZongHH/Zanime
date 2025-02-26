@@ -1,0 +1,115 @@
+/* 展开更多回复/收起按钮样式 */
+.get-replies-btn {
+    color: gray; /* 设置文字颜色为灰色 */
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-right: 5px;
+    transition: color 0.3s ease, background-color 0.3s ease; /* 添加文字颜色过渡效果 */
+    background-color: transparent; /* 将底色改为透明 */
+    margin-left: 100px; /* 给左边界留一点位置 */
+}
+
+.get-replies-btn:hover {
+    color: white; /* 鼠标悬停时文字颜色变成白色 */
+}
+
+/* Post按钮和reply-btn按钮的通用样式 */
+.send-btn,
+.post-btn,
+.reply-btn {
+    background-color: transparent;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 20px;
+    font-weight: 500;
+    text-align: center;
+    display: inline-block;
+    text-decoration: none; /* 如果按钮在某些情况下可能被视为链接，添加此属性去除下划线 */
+    white-space: nowrap; /* 防止文本换行 */
+    user-select: none; /* 禁止用户选中文本 */
+    -webkit-user-select: none; /* 兼容webkit浏览器 */
+    -moz-user-select: none; /* 兼容火狐浏览器 */
+    -ms-user-select: none; /* 兼容IE浏览器 */
+    appearance: none; /* 去除浏览器默认样式 */
+    -webkit-appearance: none; /* 兼容webkit浏览器 */
+    -moz-appearance: none; /* 兼容火狐浏览器 */
+    -ms-appearance: none; /* 兼容IE浏览器 */
+}
+
+/* Post按钮和reply-btn按钮鼠标悬停时的样式 */
+.send-btn:hover,
+.post-btn:hover,
+.reply-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2); /* 鼠标悬停时设置半透明的白色背景 */
+    color: #ccc; /* 文字颜色变为浅灰色 */
+}
+
+/* Post按钮和reply-btn按钮被点击时的样式 */
+.send-btn:active,
+.post-btn:active,
+.reply-btn:active {
+    transform: translateY(2px); /* 按钮按下时向下移动2px，模拟按下效果 */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* 添加按下时的阴影效果 */
+}
+
+.me-icon {
+    position: relative;
+    margin-left: 5px;
+}
+
+/* 回复评论输入框整体容器样式 */
+.reply-comment-input {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* 回复评论输入框整体容器样式 */
+.reply-comment-input {
+    display: flex;
+    align-items: center;
+}
+
+/* 回复输入框样式 */
+.reply-input {
+    /* 设置输入框的宽度，可以根据实际情况调整数值 */
+    width: 100%;
+    /* 设置输入框的高度，可根据需求修改 */
+    height: 40px;
+    /* 设置输入框的内边距，让输入的内容在框内有合适的间距 */
+    padding: 5px 10px;
+    /* 清除所有边框样式 */
+    border: none;
+    /* 单独设置底部边框为1px的灰色实线，可根据需求调整颜色和粗细 */
+    border-bottom: 1px solid #ccc;
+    /* 设置边框圆角为0，可不显示圆角效果 */
+    border-radius: 0;
+    /* 设置输入框的背景颜色为透明 */
+    background-color: transparent;
+    /* 设置输入框文本的颜色 */
+    color: #f0eaea;
+    /* 设置输入框的字体大小 */
+    font-size: 14px;
+    /* 让输入框在容器内可自动扩展以填充可用空间 */
+    flex-grow: 1;
+}
+
+/* 当输入框获得焦点时（被点击或通过键盘操作聚焦）的样式 */
+.reply-input:focus {
+    /* 清除默认的聚焦边框效果 */
+    outline: none !important;
+    /* 保持底部边框样式不变 */
+    border-bottom: 1px solid #ccc !important;
+}
+
+.replier {
+    margin-left: 10px;
+    margin-right: 10px;
+    color: #9b6e6e;
+}

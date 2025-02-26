@@ -1,0 +1,1153 @@
+.modal-content {
+    background-color: #2a2a2a !important;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+}
+
+.product-image-container {
+    height: 400px;
+    padding: 0;
+    background-color: rgba(51, 51, 51, 0.5) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.product-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.product-image-container img:hover {
+    transform: scale(1.05);
+}
+
+.product-details {
+    padding: 1.5rem;
+    background-color: #333333 !important;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+}
+
+.modal-header,
+.modal-footer {
+    padding: 1.5rem;
+    background-color: #2a2a2a !important;
+    border-top-left-radius: 1rem !important;
+    border-top-right-radius: 1rem !important;
+    border-color: #404040 !important;
+}
+
+.modal-body {
+    padding: 2rem !important;
+    background-color: #2a2a2a !important;
+}
+
+/* 添加动画效果 */
+.modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out;
+}
+
+.modal.show .modal-dialog {
+    transform: none;
+}
+
+.btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.btn-group .btn {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem !important;
+    font-size: 0.9rem;
+}
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    z-index: 1040 !important;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    z-index: 1050 !important;
+    background-color: transparent !important;
+}
+
+.row {
+    margin: 0 !important;
+    gap: 1rem;
+}
+
+.btn-primary {
+    background-color: #ffffff !important;
+    border-color: #ffffff !important;
+    color: #2a2a2a !important;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.btn-secondary {
+    background-color: #404040 !important;
+    border-color: #404040 !important;
+}
+
+/* 控制弹窗大小 */
+.modal-size {
+    max-width: 80vw !important;
+    width: fit-content;
+    margin: 1.75rem auto;
+}
+
+/* 限制内容区域最大高度，添加滚动条 */
+.modal-body {
+    max-height: calc(85vh - 210px) !important;
+    /* 210px 是头部和底部的总高度 */
+    overflow-y: auto !important;
+    padding: 1.5rem !important;
+    background-color: #2a2a2a !important;
+}
+
+/* 优化在小屏幕上的显示 */
+@media (max-width: 768px) {
+    .modal-size {
+        max-width: 95vw !important;
+        margin: 1rem auto;
+    }
+
+    .modal-body {
+        max-height: calc(90vh - 160px) !important;
+        padding: 1rem !important;
+    }
+
+    .product-image-container {
+        min-height: 300px;
+    }
+
+    .product-image-container img {
+        max-height: 250px;
+    }
+
+    .product-details {
+        margin-top: 1rem;
+    }
+
+    .row {
+        flex-direction: column;
+    }
+
+    .col-md-6 {
+        width: 100%;
+    }
+}
+
+/* 确保模态框不会超出屏幕 */
+.modal-content {
+    max-height: 90vh;
+    margin: auto;
+}
+
+/* 优化滚动条样式 */
+.modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: #333333;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #505050;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: #606060;
+}
+
+/* 优化标题和文字样式 */
+.text-muted {
+    color: #b0b0b0 !important;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.product-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* 左右等宽布局 */
+    gap: 2rem;
+    min-height: 500px;
+    /* 确保弹窗有足够高度 */
+}
+
+.product-image-section {
+    height: 100%;
+}
+
+.product-image-container {
+    height: 100%;
+    padding: 1.5rem;
+    background-color: #333333 !important;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+.product-image-container img {
+    max-height: 450px;
+    object-fit: contain;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.3s ease;
+}
+
+.product-info-section {
+    height: 100%;
+}
+
+.product-details {
+    height: 100%;
+    padding: 1.5rem;
+    background-color: #333333 !important;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+}
+
+/* 调整弹窗大小 */
+.modal-size {
+    max-width: 1000px !important;
+    /* 增加弹窗最大宽度 */
+    width: 90vw;
+    margin: 1.75rem auto;
+}
+
+.modal-body {
+    padding: 1.5rem !important;
+    background-color: #2a2a2a !important;
+}
+
+/* 移动端响应式布局 */
+@media (max-width: 768px) {
+    .product-container {
+        grid-template-columns: 1fr;
+        /* 在移动端改为上下布局 */
+        min-height: auto;
+    }
+
+    .product-image-container {
+        min-height: 300px;
+        height: auto;
+    }
+
+    .product-image-container img {
+        max-height: 300px;
+    }
+
+    .modal-size {
+        max-width: 95vw !important;
+    }
+}
+
+/* 修改/添加以下样式，其他样式保持不变 */
+
+.modal-title {
+    color: #ffffff !important;
+}
+
+p {
+    color: #ffffff !important;
+}
+
+/* 按钮样式调整 */
+.btn-outline-secondary {
+    color: #b0b0b0 !important;
+    border-color: #404040 !important;
+    background-color: transparent !important;
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary.active {
+    color: #ffffff !important;
+    background-color: #404040 !important;
+}
+
+.btn-secondary {
+    background-color: #404040 !important;
+    border-color: #404040 !important;
+}
+
+.btn-primary {
+    background-color: #ffffff !important;
+    border-color: #ffffff !important;
+    color: #2a2a2a !important;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* 关闭按钮颜色 */
+.btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+    /* 将关闭按钮改为白色 */
+}
+
+/* 滚动条样式调整 */
+.modal-body::-webkit-scrollbar-track {
+    background: #333333;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #505050;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: #606060;
+}
+
+/* 价格颜色调整 */
+.text-primary {
+    color: #ffffff !important;
+    font-weight: bold;
+}
+
+/* 库存状态徽章颜色 */
+.badge.bg-success {
+    background-color: #198754 !important;
+}
+
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+/* 添加自定义表单样式，避免与 Bootstrap 冲突 */
+.contact-section {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.custom-form-group {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.custom-form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: #b0b0b0;
+    font-weight: 500;
+}
+
+.custom-form-input {
+    display: block;
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #ffffff;
+    background-color: #2a2a2a;
+    background-clip: padding-box;
+    border: 1px solid #404040;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.custom-form-input:focus {
+    color: #ffffff;
+    background-color: #333333;
+    border-color: #505050;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(61, 139, 253, 0.25);
+}
+
+.custom-form-input::placeholder {
+    color: #666666;
+    opacity: 1;
+}
+
+.custom-form-input:disabled {
+    background-color: #232323;
+    opacity: 0.7;
+}
+
+textarea.custom-form-input {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .contact-section {
+        margin-top: 1.5rem !important;
+        padding-top: 1.5rem !important;
+    }
+}
+
+/* 评价容器样式 */
+.product-rating-container {
+    background-color: #333333;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+/* 评分概要样式 */
+.rating-summary {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rating-score {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.rating-score .total {
+    font-size: 1rem;
+    color: #b0b0b0;
+}
+
+.rating-stars {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.rating-stars .fa-star {
+    color: #666666;
+    font-size: 1rem;
+}
+
+.rating-stars .fa-star.active {
+    color: #ffc107;
+}
+
+.rating-count {
+    color: #b0b0b0;
+    font-size: 0.9rem;
+}
+
+/* 评价列表样式 */
+.rating-list {
+    margin-top: 1rem;
+}
+
+.rating-item {
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rating-item:last-child {
+    border-bottom: none;
+}
+
+.rating-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.rating-user {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.rating-date {
+    color: #b0b0b0;
+    font-size: 0.875rem;
+}
+
+.rating-content {
+    color: #ffffff;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* 按钮样式 */
+.btn-link {
+    text-decoration: none;
+    padding: 0;
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .product-rating-container {
+        margin-top: 1rem;
+    }
+}
+
+/* 修改容器布局和过渡效果 */
+.product-container {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    /* 调整左右比例 */
+    gap: 3rem;
+    /* 增加间距 */
+    position: relative;
+    padding: 0.5rem;
+}
+
+/* 添加背景渐变效果 */
+.modal-body {
+    background: linear-gradient(145deg, #2a2a2a 0%, #333333 100%) !important;
+    padding: 2rem !important;
+    max-height: calc(85vh - 210px) !important;
+    overflow-y: auto !important;
+}
+
+/* 修改左侧容器样式 */
+.product-image-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    height: 100%;
+}
+
+.product-image-container {
+    background-color: rgba(51, 51, 51, 0.5) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* 评价容器样式 */
+.product-rating-container {
+    background-color: rgba(51, 51, 51, 0.5) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* 右侧容器样式 */
+.product-details {
+    background-color: rgba(51, 51, 51, 0.5) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* 统一容器圆角 */
+.product-image-container,
+.product-rating-container,
+.product-details {
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+}
+
+/* 添加容器悬停效果 */
+.product-image-container:hover,
+.product-rating-container:hover,
+.product-details:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* 修改模态框整体样式 */
+.modal-content {
+    background: linear-gradient(145deg, #2a2a2a 0%, #333333 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .product-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .product-image-section {
+        gap: 1rem;
+    }
+
+    .modal-body {
+        padding: 1rem !important;
+    }
+}
+
+/* 添加/修改按钮样式 */
+.btn-outline-primary {
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+    background-color: transparent !important;
+}
+
+.btn-outline-primary:hover:not(:disabled) {
+    color: #2a2a2a !important;
+    background-color: #ffffff !important;
+    border-color: #ffffff !important;
+}
+
+.btn-outline-primary:disabled,
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.modal-footer .btn {
+    min-width: 120px;
+    /* 确保按钮宽度一致 */
+    transition: all 0.3s ease;
+}
+
+.modal-footer .btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+}
+
+/* 错误状态样式 */
+.is-invalid {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: #dc3545;
+}
+
+/* 错误高亮动画 */
+@keyframes highlightError {
+    0% {
+        background-color: transparent;
+    }
+
+    50% {
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}
+
+.highlight-error {
+    animation: highlightError 1.5s ease;
+}
+
+/* 表单组件过渡效果 */
+.custom-form-input {
+    transition: all 0.3s ease;
+}
+
+.custom-form-input:focus {
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
+}
+
+/* 按钮组错误状态 */
+.btn-group .btn.is-invalid {
+    border-color: #dc3545 !important;
+}
+
+/* 添加颜色选择按钮的错误状态样式 */
+.btn-group .btn.is-invalid {
+    border-color: #dc3545 !important;
+}
+
+.btn-group+.invalid-feedback {
+    display: block;
+    margin-top: 0.5rem;
+}
+
+.payment-container {
+    padding: 1.5rem;
+    position: relative;
+    min-height: 500px;
+}
+
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    border-radius: 0.5rem;
+
+}
+
+.order-details {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+    white-space: nowrap;
+}
+
+.info-item:last-child {
+    margin-bottom: 0;
+}
+
+.info-item .label {
+    color: rgba(255, 255, 255, 0.6);
+    width: 120px;
+    flex-shrink: 0;
+    text-align: right;
+    padding-right: 15px;
+}
+
+.info-item .value {
+    flex: 1;
+    color: rgba(255, 255, 255, 0.9);
+    white-space: normal;
+    word-break: break-all;
+    min-width: 0;
+}
+
+.info-item .price {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.countdown {
+    color: #4caf50 !important;
+}
+
+.countdown.text-danger {
+    color: #dc3545 !important;
+    animation: blink 1s ease-in-out infinite;
+}
+
+.countdown.text-muted {
+    color: #dc3545 !important;
+    animation: none;
+    opacity: 0.8;
+}
+
+.qr-code-wrapper {
+    background: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    display: inline-block;
+    margin: 1rem 0;
+}
+
+.qr-code {
+    width: 200px;
+    height: 200px;
+}
+
+/* 动画效果 */
+.payment-container {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.success-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    padding: 2rem;
+}
+
+.success-content {
+    max-width: 400px;
+    width: 100%;
+}
+
+.success-icon {
+    font-size: 4rem;
+    color: #28a745;
+    animation: scaleIn 0.5s ease;
+}
+
+.success-icon i {
+    display: inline-block;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* 添加过渡效果 */
+.success-container {
+    animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 添加新的样式 */
+.badge.bg-info {
+    background-color: #17a2b8 !important;
+}
+
+/* Toast 样式 */
+.toast-container {
+    z-index: 1060;
+    padding-top: 1.5rem;
+}
+
+.toast {
+    min-width: 300px;
+    background: rgba(220, 53, 69, 0.95) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transform: translateY(-100%);
+    will-change: transform, opacity;
+}
+
+/* 简化的滑动动画 */
+.toast.show {
+    animation: smoothSlideDown 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes smoothSlideDown {
+    0% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.toast-body {
+    font-size: 0.95rem;
+    padding: 1rem;
+    color: #fff;
+}
+
+.btn-close-white {
+    filter: brightness(0) invert(1);
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    /* 添加垂直居中对齐 */
+    margin-bottom: 0.75rem;
+}
+
+.info-item .label {
+    flex-shrink: 0;
+    width: 120px;
+    /* 增加标签宽度 */
+    padding-right: 10px;
+    /* 添加右侧间距 */
+}
+
+.qr-code-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.qr-code-wrapper.expired {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.expired-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    border-radius: 0.5rem;
+}
+
+.expired-overlay i {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    color: #dc3545;
+}
+
+.text-muted {
+    opacity: 0.6;
+}
+
+.countdown.text-muted {
+    color: #dc3545 !important;
+    animation: none;
+    opacity: 0.8;
+}
+
+/* 订单信息样式 */
+.order-details {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+}
+
+.info-item:last-child {
+    margin-bottom: 0;
+}
+
+.info-item .label {
+    flex-shrink: 0;
+    width: 120px;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: right;
+    padding-right: 15px;
+}
+
+.info-item .value {
+    flex: 1;
+    color: rgba(255, 255, 255, 0.9);
+    min-width: 0;
+}
+
+/* 不同状态的颜色 */
+.status:not(.expired) {
+    color: #ffd700 !important;
+    /* 待支付状态 */
+    background-color: rgba(255, 215, 0, 0.1);
+}
+
+.status.expired {
+    color: #dc3545 !important;
+    /* 已失效状态 */
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+/* 倒计时样式 */
+.countdown {
+    font-weight: 500;
+    color: #4caf50 !important;
+}
+
+.countdown.text-danger {
+    color: #dc3545 !important;
+    animation: blink 1s ease-in-out infinite;
+}
+
+.countdown.text-muted {
+    color: #dc3545 !important;
+    animation: none;
+    opacity: 0.8;
+}
+
+/* 二维码样式 */
+.qr-code-wrapper {
+    position: relative;
+    display: inline-block;
+    background: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+}
+
+.qr-code-wrapper.expired {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.expired-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    border-radius: 0.5rem;
+}
+
+.expired-overlay i {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    color: #dc3545;
+}
+
+/* 闪烁动画 */
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* 确认离开模态框样式 */
+.leave-confirm-dialog {
+    max-width: 320px;  /* 稍微调小一点 */
+}
+
+.leave-confirm-dialog .modal-content {
+    background: rgba(43, 43, 43, 0.95) !important;  /* 半透明背景 */
+    backdrop-filter: blur(10px);  /* 背景模糊效果 */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;  /* 更大的圆角 */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);  /* 柔和的阴影 */
+}
+
+.leave-confirm-dialog .modal-body {
+    padding: 2rem 1.5rem;  /* 调整内边距 */
+    border-radius: 1rem;
+}
+
+.leave-confirm-dialog p {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.leave-confirm-dialog .btn {
+    min-width: 110px;
+    padding: 0.6rem 1.2rem;
+    border-radius: 2rem;  /* 圆形按钮 */
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.leave-confirm-dialog .btn:hover {
+    transform: translateY(-2px);  /* 悬停效果 */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.leave-confirm-dialog .btn-secondary {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: none;
+}
+
+.leave-confirm-dialog .btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.leave-confirm-dialog .btn-danger {
+    background: linear-gradient(45deg, #ff4b4b, #ff6b6b);  /* 渐变背景 */
+    border: none;
+}
+
+.leave-confirm-dialog .btn-danger:hover {
+    background: linear-gradient(45deg, #ff6b6b, #ff8b8b);
+}
+
+/* 添加进入动画 */
+.leave-confirm-dialog .modal-content {
+    animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalPop {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* 如果需要，可以添加一些样式 */
+.modal-dialog {
+    max-width: 400px;
+}
+
+.modal-content {
+    background: linear-gradient(145deg, #2a2a2a 0%, #333333 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-title {
+    color: #fff;
+}
+
+.modal-body p {
+    color: #fff;
+    margin-bottom: 0;
+}

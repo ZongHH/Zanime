@@ -1,0 +1,40 @@
+gRpcServer:
+  host: "0.0.0.0"
+  port: 9094
+
+# MySQL数据库配置
+mysql:
+  host: "127.0.0.1"  # 数据库主机地址
+  port: 3306  # 数据库端口号
+  user: "root"  # 数据库用户名
+  password: "123456"  # 数据库密码
+  database: "anime"  # 数据库名称
+  charset: "utf8mb4"  # 字符集编码
+  parse_time: true  # 是否解析时间
+  loc: "Asia/Shanghai"  # 时区设置
+  max_idle_conns: 10  # 最大空闲连接数
+  max_open_conns: 100  # 最大打开连接数
+  conn_max_lifetime: "1h"  # 连接最大生命周期
+
+# 爬虫配置
+crawler:
+  domains:  # 允许爬取的域名列表
+    - "www.yinghuadm.cn"
+  concurrency: 1  # 并发爬虫数量
+  async: true  # 是否启用异步模式
+  max_depth: 5  # 最大爬取深度
+  timeout: "20s"  # 请求超时时间(秒)
+  min_delay: "1s"  # 最小请求延迟(毫秒)
+  max_delay: "2.5s"  # 最大请求延迟(毫秒)
+  interval: "24h"  # 爬取间隔时间
+
+# NSQ消息队列配置
+nsq:
+  host: "localhost"  # NSQ服务器地址
+  port: 5150  # NSQ服务器端口号
+
+# URL配置
+urls:
+  yinghuadongman:  # 樱花动漫网站配置
+    search: "https://www.yinghuadm.cn/search_-------------.html?wd="  # 搜索页面URL模板
+    main: "https://www.yinghuadm.cn/"  # 主页URL

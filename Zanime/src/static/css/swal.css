@@ -1,0 +1,53 @@
+/* 弹窗的整体样式 */
+.swal2-modal.swal2-round-modal {
+    border-radius: 20px; /* 圆角弹窗 */
+    padding: 20px; /* 内间距 */
+    background-color: #ffffff; /* 背景色 */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* 轻微阴影 */
+    font-family: 'Arial', sans-serif; /* 设置字体 */
+}
+
+/* 弹窗标题 */
+.swal2-title.swal2-round-title {
+    font-size: 24px; /* 标题字体大小 */
+    color: #333333; /* 标题颜色 */
+    font-weight: bold; /* 粗体 */
+    margin-bottom: 10px; /* 与内容的间距 */
+}
+
+/* 弹窗内容 */
+.swal2-content.swal2-round-content {
+    font-size: 16px; /* 内容字体大小 */
+    color: #666666; /* 内容颜色 */
+    line-height: 1.5; /* 行间距 */
+    margin-bottom: 20px; /* 与按钮的间距 */
+}
+
+/* 确认按钮 */
+.swal2-confirm.swal2-round-confirm-button {
+    background-color: #e74c3c; /* 按钮背景色 (红色) */
+    color: #ffffff; /* 按钮文字颜色 (白色) */
+    font-size: 16px; /* 按钮文字大小 */
+    padding: 10px 25px; /* 按钮内边距 */
+    border-radius: 50px; /* 圆形按钮样式 */
+    border: none; /* 无边框 */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* 动画效果 */
+}
+
+/* 鼠标悬停确认按钮 */
+.swal2-confirm.swal2-round-confirm-button:hover {
+    background-color: #d43f31; /* 鼠标悬停变深的红色 */
+    transform: scale(1.05); /* 鼠标悬停放大 */
+}
+
+/* 鼠标按下确认按钮 */
+.swal2-confirm.swal2-round-confirm-button:active {
+    background-color: #c0392b; /* 鼠标按下变更深的红色 */
+    transform: scale(0.95); /* 鼠标按下缩小 */
+}
+
+/* 错误主题（附加的 swal2-danger 样式） */
+.swal2-danger {
+    border: 2px solid #e74c3c; /* 红色边框 */
+    box-shadow: 0 0 5px rgba(231, 76, 60, 0.6); /* 边缘光晕 */
+}

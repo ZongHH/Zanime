@@ -1,0 +1,193 @@
+.notification-dropdown {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    width: 380px;
+    background: rgba(28, 28, 28, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.notify-header {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.notify-header h5 {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.notify-badge {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 1rem;
+}
+
+.notify-body {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 12px;
+    background: rgba(28, 28, 28, 0.95);
+}
+
+.notify-item {
+    display: flex;
+    padding: 15px;
+    margin: 8px 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    border: none;
+    gap: 15px;
+}
+
+.notify-item:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.notify-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.notify-content {
+    flex: 1;
+}
+
+.notify-content h6 {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.notify-content p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.notify-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notify-time {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.notify-status {
+    background: rgba(82, 196, 26, 0.15);
+    color: #52c41a;
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+}
+
+.notify-footer {
+    padding: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+.view-all {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 8px 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 auto;
+}
+
+.view-all:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.notify-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.notify-empty i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.notify-empty p {
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* 滚动条样式 */
+.notify-body::-webkit-scrollbar {
+    width: 5px;
+}
+
+.notify-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.notify-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.notify-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* 动画效果 */
+.dropdown-fade-enter-active,
+.dropdown-fade-leave-active {
+    transition: all 0.3s ease;
+}
+
+.dropdown-fade-enter-from,
+.dropdown-fade-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+/* 响应式调整 */
+@media (max-width: 576px) {
+    .notification-dropdown {
+        width: calc(100vw - 30px);
+        right: 15px;
+    }
+}

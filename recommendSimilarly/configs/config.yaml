@@ -1,0 +1,16 @@
+# gRPC服务配置
+grpc:
+  host: "0.0.0.0"
+  port: 50051
+  max_workers: 10
+
+# NSQ配置
+nsq:
+  # NSQ消费者配置  
+  consumer:
+    nsqd_tcp_addresses: ["127.0.0.1:5150"]
+    topic: "user_video_behavior"
+    channel: "update"
+    max_in_flight: 5
+    heartbeat_interval: 30
+    message_timeout: 60

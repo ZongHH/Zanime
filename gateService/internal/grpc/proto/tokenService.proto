@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option go_package = "./tokenService";
+
+package tokenService;
+
+service Token {
+    rpc TokenVerification (tokenRequest) returns (tokenResponse) {}
+}
+
+message tokenRequest {
+    string token = 1;
+}
+
+message tokenResponse {
+    int32 userID = 1;
+    string userName = 2;
+    string email = 3;
+    string gender = 4;
+    string avatarUrl = 5;
+    string error = 6;
+}

@@ -1,0 +1,604 @@
+.personal-page {
+    background: #0a0a0a;
+    min-height: 100vh;
+    padding: 20px 0;
+}
+
+/* 基本信息区域样式 */
+.profile-section {
+    margin-bottom: 30px;
+}
+
+.profile-container {
+    background: rgba(30, 30, 30, 0.5);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.profile-header {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+.profile-avatar {
+    position: relative;
+    width: 120px;
+    height: 120px;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(139, 0, 0, 0.9);
+}
+
+.vip-badge {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: rgba(139, 0, 0, 0.9);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.username {
+    color: white;
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+}
+
+.user-id {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.join-date {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+}
+
+.signature {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+.profile-actions {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 1;
+}
+
+.edit-btn,
+.settings-btn {
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.edit-btn {
+    background: rgba(139, 0, 0, 0.9);
+    color: white;
+}
+
+.settings-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* 数据统计区域样式 */
+.stats-section {
+    margin-bottom: 30px;
+}
+
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.stat-item {
+    background: rgba(30, 30, 30, 0.5);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.stat-item i {
+    font-size: 2rem;
+    color: rgba(139, 0, 0, 0.9);
+}
+
+.stat-info h3 {
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+}
+
+.stat-info p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+}
+
+/* 主要内容区域样式 */
+.content-container {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 30px;
+}
+
+.section-card {
+    background: rgba(30, 30, 30, 0.5);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-header h3 {
+    color: white;
+    font-size: 1.3rem;
+}
+
+.section-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.filter-btn,
+.clear-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+}
+
+.filter-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.clear-btn {
+    background: rgba(139, 0, 0, 0.9);
+    color: white;
+}
+
+/* 动漫卡片网格样式 */
+.anime-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+}
+
+.anime-card {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(40, 40, 40, 0.5);
+    transition: all 0.3s ease;
+}
+
+.anime-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.card-image {
+    position: relative;
+    padding-top: 140%;
+}
+
+.card-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.progress-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.progress-bar {
+    height: 100%;
+    background: rgba(139, 0, 0, 0.9);
+    transition: width 0.3s ease;
+}
+
+.card-actions {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.anime-card:hover .card-actions {
+    opacity: 1;
+}
+
+.continue-btn {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(139, 0, 0, 0.9);
+    color: white;
+    cursor: pointer;
+}
+
+.card-info {
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.card-info h4 {
+    color: white;
+    font-size: 1rem;
+    margin-bottom: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.card-info p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+}
+
+.episode-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 8px 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+}
+
+.video-name {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.episode-progress {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.episode {
+    color: #fff;
+}
+
+.progress-text {
+    color: rgba(139, 0, 0, 0.9);
+    font-weight: bold;
+}
+
+.update-time {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+    margin-top: 4px;
+}
+
+/* 追番状态标签样式 */
+.status-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: white;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.status-badge.watching {
+    background: rgba(0, 150, 136, 0.9);
+}
+
+.status-badge.completed {
+    background: rgba(139, 0, 0, 0.9);
+}
+
+.status-badge.paused {
+    background: rgba(255, 152, 0, 0.9);
+}
+
+.status-badge.dropped {
+    background: rgba(158, 158, 158, 0.9);
+}
+
+.status-badge.planning {
+    background: rgba(33, 150, 243, 0.9);
+}
+
+/* 右侧边栏样式 */
+.vip-status {
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.vip-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.vip-crown {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+.vip-crown i {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.vip-info {
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(30, 30, 30, 0.8), rgba(20, 20, 20, 0.8));
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+.vip-info::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+    animation: rotate 10s linear infinite;
+}
+
+.vip-level-badge {
+    display: inline-block;
+    padding: 8px 20px;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    border-radius: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+}
+
+.vip-level-badge span {
+    color: white;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.vip-details {
+    position: relative;
+    z-index: 1;
+}
+
+.expire-date {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+}
+
+.upgrade-btn {
+    background: linear-gradient(135deg, #8B0000, #FF0000);
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    box-shadow: 0 4px 15px rgba(139, 0, 0, 0.3);
+}
+
+.upgrade-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 0, 0, 0.4);
+}
+
+.upgrade-btn i {
+    transition: transform 0.3s ease;
+}
+
+.upgrade-btn:hover i {
+    transform: translateX(5px);
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.recommendation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.recommendation-item {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(40, 40, 40, 0.5);
+    border-radius: 8px;
+}
+
+.recommendation-item img {
+    width: 60px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.recommendation-info h4 {
+    color: white;
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+}
+
+.recommendation-info p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+    .content-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-actions {
+        position: static;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .stats-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .anime-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+}
+
+/* 卡片悬停效果 */
+.anime-card {
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.anime-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* 修改历史记录网格样式 */
+.history-grid {
+    grid-template-columns: repeat(6, 1fr);
+    /* 固定4列 */
+    gap: 20px;
+}
+
+/* 更多按钮样式 */
+.more-btn {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.more-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.more-btn i {
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+}
+
+.more-btn:hover i {
+    transform: translateX(4px);
+}
+
+/* 响应式调整 */
+@media (max-width: 1200px) {
+    .history-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .history-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .history-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}

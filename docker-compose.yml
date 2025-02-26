@@ -1,0 +1,36 @@
+version: '3'
+services:
+  nsqlookupd:
+    image: nsqio/nsq
+    command: /nsqlookupd
+    ports:
+      - "5160:4160"
+      - "5161:4161"
+  nsqd:
+    image: nsqio/nsq
+    command: /nsqd --lookupd-tcp-address=nsqlookupd:4160
+    depends_on:
+      - nsqlookupd
+    ports:
+      - "5150:4150"
+      - "5151:4151"
+  nsqadmin:
+    image: nsqio/nsq
+    command: /nsqadmin --lookupd-http-address=nsqlookupd:4161
+    depends_on:
+      - nsqlookupd  
+    ports:
+      - "5171:4171"
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password   # 设置 MySQL 根用户密码
+      MYSQL_DATABASE: my_database          # 创建一个数据库
+    ports:
+      - "3306:3306"                        # 映射 MySQL 端口
+  redis:
+    image: redis:latest
+    environment:
+      REDIS_PASSWORD: your_redis_password  # 设置 Redis 密码
+    ports:
+      - "6379:6379"                        # 映射 Redis 端口

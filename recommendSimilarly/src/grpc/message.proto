@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package recommend;
+
+service RecommendService {
+  rpc ListRecommendations(RecommendationRequest) returns (RecommendationResponseList);
+}
+
+message RecommendationRequest {
+  int32 user_id = 1;
+}
+
+message RecommendationResponse {
+  int32 video_id = 1;
+  string video_name = 2;
+  string cover_image_url = 3;
+}
+
+// 修改这里：创建一个新的消息类型，用于包装多个 RecommendationResponse
+message RecommendationResponseList {
+  repeated RecommendationResponse recommendations = 1;
+}

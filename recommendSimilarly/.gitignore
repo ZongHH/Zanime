@@ -1,0 +1,11 @@
+# Python（Python相关文件）
+**/__pycache__/
+
+# Virtual Environment（虚拟环境）
+venv/
+
+# IDE（集成开发环境）
+.vscode/
+
+# Project specific（项目特定文件）
+logs/

@@ -1,0 +1,38 @@
+# 构建阶段
+FROM golang:1.23.2-alpine AS builder
+
+WORKDIR /app
+
+# 设置 GOPROXY
+ENV GOPROXY=https://mirrors.aliyun.com/goproxy/,direct
+
+# 添加构建依赖
+RUN apk add --no-cache gcc musl-dev
+
+# 复制源代码
+COPY . .
+
+# 下载依赖并构建
+RUN go mod tidy && \
+    CGO_ENABLED=0 GOOS=linux go build -o main .
+
+# 运行阶段
+FROM alpine:latest
+
+# 添加运行时依赖
+RUN apk add --no-cache ca-certificates tzdata
+
+WORKDIR /app
+
+# 从构建阶段复制编译好的二进制文件和必要的配置文件
+COPY --from=builder /app/main .
+COPY --from=builder /app/config.ini .
+
+# 设置时区为上海
+ENV TZ=Asia/Shanghai
+
+# 暴露端口
+EXPOSE 9092 9093
+
+# 运行应用
+CMD ["./main"]

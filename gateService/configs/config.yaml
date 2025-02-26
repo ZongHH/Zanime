@@ -1,0 +1,179 @@
+# 服务基础配置
+server:
+  name: "gate-service"        # 服务名称，用于服务发现和日志标识
+  env: "development"          # 运行环境：development(开发)、testing(测试)、production(生产)
+  version: "1.0.0"           # 服务版本号，用于版本管理和兼容性检查
+
+# HTTP服务配置
+http:
+  host: "127.0.0.1"          # HTTP服务监听地址
+  port: 9092                 # HTTP服务端口
+  read_timeout: 10s          # 读取整个请求的最大时间
+  write_timeout: 50s         # 写入响应的最大时间
+  idle_timeout: 60s          # 保持连接等待下一个请求的最大时间
+  max_header_bytes: 1048576  # 请求头的最大字节数(1MB)
+
+# gRPC服务配置
+grpc:
+  host: "127.0.0.1"                    # gRPC服务监听地址
+  port: 9093                           # gRPC服务端口
+  max_recv_msg_size: 4194304           # 最大接收消息大小(4MB)
+  max_send_msg_size: 4194304           # 最大发送消息大小(4MB)
+  initial_window_size: 65536           # 流式传输初始窗口大小(64KB)
+  initial_conn_window_size: 1048576    # 连接初始窗口大小(1MB)
+  keepalive:
+    time: 7200s                        # 保活检测间隔时间
+    timeout: 20s                       # 保活检测超时时间
+    permit_without_stream: true        # 允许无流时发送保活包
+
+# 数据库配置
+mysql:
+  host: "127.0.0.1"         # MySQL服务器地址
+  port: 3306                 # MySQL端口
+  username: "root"           # 数据库用户名
+  password: "123456"         # 数据库密码
+  database: "anime"         # 数据库名称
+  charset: "utf8mb4"         # 字符集，支持完整的UTF-8编码
+  parse_time: true           # 是否解析时间
+  loc: "Local"              # 时区设置
+  max_idle_conns: 10        # 最大空闲连接数
+  max_open_conns: 100       # 最大打开连接数
+  conn_max_lifetime: 3600s  # 连接最大生命周期
+
+# Redis配置
+redis:
+  host: "127.0.0.1"         # Redis服务器地址
+  port: 6380                # Redis端口
+  password: "123456"        # Redis密码
+  db: 1                     # 使用的数据库编号
+  pool_size: 100           # 连接池大小
+  min_idle_conns: 10       # 最小空闲连接数
+  dial_timeout: 5s         # 连接超时时间
+  read_timeout: 3s         # 读取超时时间
+  write_timeout: 3s        # 写入超时时间
+  pool_timeout: 4s         # 从连接池获取连接的超时时间
+  idle_timeout: 300s       # 空闲连接超时时间
+
+# NSQ消息队列配置
+nsq:
+  nsqd:                    # NSQ守护进程配置
+    host: "localhost"      # NSQD地址
+    port: 5150             # NSQD端口
+  producer:
+    pool_size: 3           # 生产者连接池大小
+  consumer:
+    max_in_flight: 1000    # 最大处理中的消息数
+    concurrent_handlers: 10 # 并发处理器数量
+    max_attempts: 5        # 消息处理最大重试次数
+
+# 目标gRPC服务配置（客户端配置）
+target_grpc_servers:
+  scrape_service:  # 服务名称（示例：用户服务）
+    enabled: true  # 是否启用该服务连接
+    endpoints:
+      - address: "127.0.0.1"  # 目标服务地址（域名或IP）
+        port: 9094  # 目标服务端口
+    # 连接基础参数
+    connection:
+      timeout: 30s  # 连接建立超时时间
+      keepalive:
+        time: 60s  # 发送心跳包间隔
+        timeout: 5s  # 心跳检测超时时间
+        permit_without_stream: false  # 无活动流时是否发送心跳
+    # 重试策略
+    retry_policy:
+      max_attempts: 3  # 最大重试次数
+      initial_backoff: 100ms  # 初始重试间隔
+      max_backoff: 1s  # 最大重试间隔
+      backoff_multiplier: 2.0  # 重试间隔增长系数
+    # 连接池配置
+    pool:
+      max_connections: 100  # 最大连接数
+      max_idle_connections: 20  # 最大空闲连接数
+      min_idle_connections: 5  # 最小空闲连接数
+      max_connection_age: 3600s  # 连接最大存活时间
+  recommend_service:  # 推荐服务
+    enabled: true  # 是否启用该服务
+    endpoints:
+      - address: "127.0.0.1"  # 服务地址
+        port: 50051  # 服务端口
+    # 连接基础参数
+    connection:
+      timeout: 30s  # 连接超时时间
+      keepalive:
+        time: 60s  # 发送心跳包间隔
+        timeout: 5s  # 心跳检测超时时间
+        permit_without_stream: false  # 无活动流时是否发送心跳
+    # 重试策略
+    retry_policy:
+      max_attempts: 3  # 最大重试次数
+      initial_backoff: 100ms  # 初始重试间隔
+      max_backoff: 1s  # 最大重试间隔
+      backoff_multiplier: 2.0  # 重试间隔增长系数
+    # 连接池配置
+    pool:
+      max_connections: 50  # 最大连接数
+      max_idle_connections: 10  # 最大空闲连接数
+      min_idle_connections: 5  # 最小空闲连接数
+      max_connection_age: 3600s  # 连接最大存活时间
+
+# JWT认证配置
+jwt:
+  secret_key: "your-secret-key-here"  # JWT签名密钥
+  issuer: "gate-service"              # JWT签发者
+  access_token:
+    expire_time: 24h                  # 访问令牌过期时间
+    max_refresh_time: 72h             # 最大刷新时间
+  refresh_token:
+    expire_time: 168h                 # 刷新令牌过期时间(7天)
+  token_type: "Bearer"                # 令牌类型
+
+# Cookie配置
+cookie:
+  domain: "127.0.0.1"      # Cookie域名
+  path: "/"                # Cookie路径
+  max_age: 86400          # Cookie过期时间(24小时)
+  secure: false           # 是否只在HTTPS下传输
+  http_only: true         # 是否禁止JavaScript访问
+  same_site: "lax"        # 跨站点请求策略(strict/lax/none)
+
+# 文件存储配置
+storage:
+  # 用户头像存储配置
+  avatar:
+    path: "../../Zanime/src/static/user/avatars"     # 头像文件存储路径
+    url: "/src/static/user/avatars"                  # 头像文件访问URL
+    max_size: 2097152                                # 最大文件大小(2MB)
+    allowed_types:                                   # 允许的文件类型
+      - "image/jpeg"
+      - "image/png"
+      - "image/gif"
+    
+  # 帖子图片存储配置  
+  post_image:
+    path: "../../Zanime/src/static/user/posts"       # 帖子图片存储路径
+    url: "/src/static/user/posts"                    # 帖子图片访问URL
+    max_size: 5242880                                # 最大文件大小(5MB)
+    allowed_types:                                   # 允许的文件类型
+      - "image/jpeg" 
+      - "image/png"
+      - "image/gif"
+    max_files: 9                                     # 单个帖子最大图片数量
+
+# 安全配置
+security:
+  cors:                  # 跨域资源共享配置
+    allowed_origins: ["*"]  # 允许的源
+    allowed_methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]  # 允许的HTTP方法
+    allowed_headers: ["*"]  # 允许的请求头
+    exposed_headers: ["Content-Length"]  # 暴露的响应头
+    allow_credentials: true  # 是否允许携带认证信息
+    max_age: 12h           # 预检请求结果缓存时间
+  csrf:                    # CSRF防护配置
+    enabled: true          # 是否启用CSRF防护
+    exclude_paths: ["/api/v1/webhook/*"]  # 排除的路径
+  xss:                     # XSS防护配置
+    enabled: true          # 是否启用XSS防护
+  rate_limit:              # 安全限流配置
+    enabled: true          # 是否启用安全限流
+    requests_per_second: 10  # 每秒请求数限制

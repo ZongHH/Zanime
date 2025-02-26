@@ -1,0 +1,242 @@
+/* 侧边栏基础样式 */
+.sidebar {
+    width: 18.75rem;
+    background-color: #2b2b2b;
+    color: #e0e0e0;
+    position: fixed;
+    top: 50%;
+    right: 0;
+    height: 75vh;
+    transform: translateY(-50%);
+    padding: 1.25rem;
+    box-shadow: -0.25rem 0 0.9375rem rgba(0, 0, 0, 0.6);
+    border-radius: 0.5rem 0 0 0.5rem;
+    transition: all 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar--collapsed {
+    width: 3.125rem;
+    background: transparent;
+}
+
+/* 侧边栏头部 */
+.sidebar-header {
+    flex-shrink: 0;
+    margin-bottom: 1rem;
+}
+
+/* 收缩按钮 */
+.collapse-btn {
+    background-color: #3a3a3a;
+    /* 暗色按钮 */
+    color: #e0e0e0;
+    font-size: 1.5rem;
+    /* 24px / 16px = 1.5rem */
+    border: none;
+    cursor: pointer;
+    padding: 0.625rem;
+    /* 10px / 16px = 0.625rem */
+    border-radius: 0.3125rem;
+    /* 5px / 16px = 0.3125rem */
+    transition: background-color 0.3s ease;
+}
+
+.collapse-btn:hover {
+    background-color: #1e1e1e;
+    /* 按钮悬停时变成更深的色调 */
+}
+
+/* 周边产品标题 */
+.sidebar-title {
+    font-size: 2rem;
+    /* 32px / 16px = 2rem */
+    color: #dcdcdc;
+    /* 淡灰色标题 */
+    font-family: 'Montserrat', sans-serif;
+    /* 现代感强的字体 */
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.125rem;
+    /* 2px / 16px = 0.125rem */
+}
+
+.sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 0.9375rem;
+    padding-left: 0.625rem;
+    margin-top: 0.625rem;
+}
+
+/* 为滚动条添加样式 */
+.sidebar-content::-webkit-scrollbar {
+    width: 0.375rem;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 0.625rem;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 商品项样式 */
+.product-item {
+    margin-bottom: 0.875rem;
+    padding: 0.75rem;
+    border-radius: 0.625rem;
+    background-color: #3a3a3a;
+    box-shadow: 0 0.25rem 0.625rem rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.product-item:hover {
+    transform: scale(1.05);
+    background-color: #4a4a4a;
+    box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.5);
+}
+
+.product-item img {
+    width: 3.75rem;
+    height: 3.75rem;
+    object-fit: cover;
+    border-radius: 0.625rem;
+    margin-right: 1.25rem;
+}
+
+.product-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.product-name {
+    font-size: 1.125rem;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 0.3125rem;
+    font-family: 'Roboto', sans-serif;
+}
+
+.product-price {
+    font-size: 0.9rem;
+    color: #c3aaaa;
+}
+
+/* 加载状态样式 */
+.loading-state {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 300px;
+    padding: 2rem;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.loading-state p {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* 加载动画样式 */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+.loading-more .spinner-border {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+/* 加载更多样式 */
+.loading-more {
+    padding: 1rem;
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* 响应式调整 */
+@media (max-height: 800px) {
+    .sidebar {
+        height: 70vh;
+    }
+}
+
+@media (max-height: 600px) {
+    .sidebar {
+        height: 80vh;
+    }
+}
+
+/* 收缩按钮和标签样式 */
+.sidebar--collapsed .sidebar-header {
+    position: relative;
+}
+
+.sidebar--collapsed .collapse-btn {
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.sidebar--collapsed .sidebar-header::after {
+    content: '动\A漫\A周\A边';
+    white-space: pre;
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #e0e0e0;
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: center;
+    background: rgba(58, 58, 58, 0.95);
+    padding: 8px 6px;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    animation: floating 3s ease-in-out infinite;
+}
+
+.sidebar--collapsed .sidebar-header::before {
+    content: '';
+    position: absolute;
+    top: 38px;
+    left: 50%;
+    width: 1px;
+    height: 25px;
+    background: linear-gradient(to bottom, rgba(224, 224, 224, 0.6), transparent);
+    animation: floating 3s ease-in-out infinite;
+    transform-origin: top;
+}
+
+@keyframes floating {
+
+    0%,
+    100% {
+        transform: translateY(0) translateX(-10%);
+    }
+
+    50% {
+        transform: translateY(10px) translateX(-10%);
+    }
+}

@@ -1,0 +1,57 @@
+# 第一阶段：构建阶段
+FROM golang:1.23.2-alpine AS builder
+
+# 设置工作目录
+WORKDIR /app
+
+# 设置 GOPROXY
+ENV GOPROXY=https://goproxy.cn,direct
+
+# 安装基本构建工具
+RUN apk add --no-cache gcc musl-dev
+
+# 复制源代码
+COPY . .
+
+# 下载依赖
+RUN go mod tidy
+
+# 构建应用
+RUN CGO_ENABLED=0 GOOS=linux go build -o crawler cmd/main.go
+
+# 第二阶段：运行阶段
+FROM alpine:latest
+
+# 安装 Chrome 依赖
+# 核心浏览器
+# WebDriver 支持
+# 网络安全服务
+# SSL 证书
+RUN apk add --no-cache \
+    chromium \             
+    chromium-chromedriver \
+    nss \
+    ca-certificates \
+    && rm -rf /var/cache/apk/*
+
+# 设置工作目录
+WORKDIR /app
+
+# 从构建阶段复制二进制文件
+COPY --from=builder /app/crawler .
+# 复制配置文件
+COPY --from=builder /app/config.ini .
+
+# 设置环境变量
+ENV CHROME_BIN=/usr/bin/chromium-browser \
+    CHROME_PATH=/usr/lib/chromium/
+
+# 暴露端口（根据你的配置文件中的端口设置）
+EXPOSE 9094
+
+# 设置健康检查
+HEALTHCHECK --interval=30s --timeout=3s \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
+
+# 启动应用
+CMD ["./crawler"]

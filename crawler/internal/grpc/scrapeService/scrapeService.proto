@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option go_package = "./scrapeService";
+
+package scrape;
+
+service Video {
+    rpc ScrapeVideoUrl (videoParms) returns (videoMsg) {}
+}
+
+message videoParms {
+    string name = 1;
+    string release = 2;
+    string area = 3;
+    string episode = 4;
+    string replace = 5;
+}
+
+message videoMsg {
+    string url = 1;
+}
