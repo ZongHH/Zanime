@@ -101,7 +101,7 @@ type services struct {
 // - 注入所需的配置和依赖
 // - 确保服务之间的协作正常
 func initServices(cfg *config.Config, bases *bases, repositorys *repositotys) *services {
-	scrape := search.NewVideoScraper(nil)
+	scrape := search.NewVideoScraper(&cfg.DynamicCrawler)
 	return &services{
 		Crawler: crawler.NewAnimeCrawler(cfg, bases.CollectorPool, repositorys.VideoRepo),
 		Search:  search.NewAnimeSearcher(cfg, bases.CollectorPool, scrape, repositorys.VideoRepo),

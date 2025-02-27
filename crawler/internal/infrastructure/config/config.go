@@ -11,11 +11,21 @@ import (
 // Config 全局配置结构
 // 包含了应用程序所需的所有配置信息,包括gRPC服务器、MySQL数据库、爬虫、NSQ消息队列和URL等配置
 type Config struct {
-	GRPCServer GRPCServerConfig `mapstructure:"gRpcServer"` // gRPC服务器配置
-	MySQL      MySQLConfig      `mapstructure:"mysql"`      // MySQL数据库配置
-	Crawler    CrawlerConfig    `mapstructure:"crawler"`    // 爬虫配置
-	NSQ        NSQConfig        `mapstructure:"nsq"`        // NSQ消息队列配置
-	URLs       URLsConfig       `mapstructure:"urls"`       // URL相关配置
+	GRPCServer     GRPCServerConfig     `mapstructure:"gRpcServer"`      // gRPC服务器配置
+	MySQL          MySQLConfig          `mapstructure:"mysql"`           // MySQL数据库配置
+	Crawler        CrawlerConfig        `mapstructure:"crawler"`         // 爬虫配置
+	NSQ            NSQConfig            `mapstructure:"nsq"`             // NSQ消息队列配置
+	URLs           URLsConfig           `mapstructure:"urls"`            // URL相关配置
+	DynamicCrawler DynamicCrawlerConfig `mapstructure:"dynamic_crawler"` // 动态链接爬虫配置
+}
+
+// DynamicCrawlerConfig 动态链接爬虫配置
+// 定义了动态链接爬虫的相关参数
+type DynamicCrawlerConfig struct {
+	Timeout       time.Duration `mapstructure:"timeout"`        // 默认超时时间
+	RetryCount    int           `mapstructure:"retry_count"`    // 默认重试次数
+	RetryInterval time.Duration `mapstructure:"retry_interval"` // 默认重试间隔
+	RandomDelay   time.Duration `mapstructure:"random_delay"`   // 默认随机延迟
 }
 
 // GRPCServerConfig gRPC服务器配置

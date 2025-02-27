@@ -79,7 +79,7 @@ func (s *AnimeSearcher) SearchAnime(ctx context.Context, name, release, area, ep
 		log.Printf("数据库获取到Name: %s, Episode: %s地址: %s\n", matcher.Name, matcher.Episode, videoURL)
 	}
 
-	return s.waitForResult(ctx, resultChan)
+	return s.waitForResult(ctx, resultChan, name, episode)
 }
 
 // setupSearchHandler 设置搜索结果处理器
@@ -146,14 +146,14 @@ func (s *AnimeSearcher) startSearch(c *colly.Collector, name string) {
 }
 
 // waitForResult 等待搜索结果
-func (s *AnimeSearcher) waitForResult(ctx context.Context, resultChan <-chan string) (string, error) {
+func (s *AnimeSearcher) waitForResult(ctx context.Context, resultChan <-chan string, name, episode string) (string, error) {
 	select {
 	case url := <-resultChan:
-		videoURL, err := s.scraper.ScrapeVideo(context.Background(), url) // 使用父超时ctx如果提前释放会导致chrome实例不能正确释放
+		videoURL, err := s.scraper.ScrapeVideo(url) // 使用父超时ctx如果提前释放会导致chrome实例不能正确释放
 		if err != nil {
 			return "", fmt.Errorf("动态爬取视频链接失败: %v", err)
 		}
-		monitor.Info("搜索结果: %s", videoURL)
+		monitor.Info("%v:%v视频链接: %v", name, episode, videoURL)
 		return videoURL, nil
 	case <-ctx.Done():
 		return "", fmt.Errorf("动态爬取视频链接超时")

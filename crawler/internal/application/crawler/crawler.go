@@ -61,9 +61,6 @@ func NewAnimeCrawler(cfg *config.Config, collectorPool *collector.CollectorPool,
 func (c *AnimeCrawler) Start(ctx context.Context) {
 	monitor.Info("启动动漫爬虫...")
 
-	// 首次立即执行
-	c.crawl(ctx)
-
 	// 定时执行
 	for {
 		select {

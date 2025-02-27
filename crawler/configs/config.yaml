@@ -16,7 +16,7 @@ mysql:
   max_open_conns: 100  # 最大打开连接数
   conn_max_lifetime: "1h"  # 连接最大生命周期
 
-# 爬虫配置
+# 静态资源爬虫配置
 crawler:
   domains:  # 允许爬取的域名列表
     - "www.yinghuadm.cn"
@@ -27,6 +27,13 @@ crawler:
   min_delay: "1s"  # 最小请求延迟(毫秒)
   max_delay: "2.5s"  # 最大请求延迟(毫秒)
   interval: "24h"  # 爬取间隔时间
+
+# 动态链接爬虫配置
+dynamic_crawler:
+  timeout: "12s"  # 默认超时时间 gRpc连接超时时间为30s timeout*retry_count<=30s
+  retry_count: 2  # 默认重试次数
+  retry_interval: "1s"  # 默认重试间隔
+  random_delay: "1ms"  # 默认随机延迟 暂未使用
 
 # NSQ消息队列配置
 nsq:

@@ -2,8 +2,10 @@ package search
 
 import (
 	"context"
+	"crawler/internal/infrastructure/config"
 	"crawler/pkg/random"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -70,25 +72,25 @@ type ScraperConfig struct {
 // 提供了一组经过优化的默认参数值，适用于大多数爬取场景
 // 这些配置已经过实际测试，可以在保证性能的同时避免被反爬虫机制检测
 var DefaultConfig = ScraperConfig{
-	// Timeout 设置25秒超时
+	// Timeout 设置10秒超时
 	// - 足够处理大多数页面加载情况
 	// - 包括DOM渲染和JavaScript执行时间
 	// - 对于网络较慢的环境也有足够余量
-	Timeout: 25 * time.Second,
+	Timeout: 10 * time.Second,
 
-	// RetryCount 设置1次重试
+	// RetryCount 设置3次重试
 	// - 降低对目标服务器的压力
 	// - 避免频繁请求触发反爬虫机制
-	// - 失败后只重试一次，快速失败
-	RetryCount: 2,
+	// - 失败后重试最多3次，快速失败
+	RetryCount: 3,
 
-	// RetryInterval 重试间隔2秒
+	// RetryInterval 重试间隔1秒
 	// - 给予服务器足够的恢复时间
 	// - 模拟人类手动重试的间隔
 	// - 避免被识别为机械性重试
-	RetryInterval: 2 * time.Second,
+	RetryInterval: 1 * time.Second,
 
-	// RandomDelay 随机延迟最多2秒
+	// RandomDelay 随机延迟最多1毫秒
 	// - 增加请求的随机性
 	// - 模拟真实用户行为
 	// - 平衡性能和反爬虫需求
@@ -135,15 +137,19 @@ var DefaultConfig = ScraperConfig{
 
 // VideoScraper 视频爬虫结构体
 type VideoScraper struct {
-	config ScraperConfig
+	config *ScraperConfig
 }
 
 // NewVideoScraper 创建新的视频爬虫实例
-func NewVideoScraper(config *ScraperConfig) *VideoScraper {
-	if config == nil {
-		config = &DefaultConfig
+func NewVideoScraper(config *config.DynamicCrawlerConfig) *VideoScraper {
+	if config != nil {
+		DefaultConfig.Timeout = config.Timeout
+		DefaultConfig.RetryCount = config.RetryCount
+		DefaultConfig.RetryInterval = config.RetryInterval
+		DefaultConfig.RandomDelay = config.RandomDelay
 	}
-	return &VideoScraper{config: *config}
+
+	return &VideoScraper{config: &DefaultConfig}
 }
 
 // createContext 创建 Chromedp 上下文
@@ -161,51 +167,35 @@ func (s *VideoScraper) createContext(ctx context.Context) (context.Context, []co
 	taskCtx, taskCancel := chromedp.NewContext(allocCtx)
 	cancels = append(cancels, taskCancel)
 
-	return taskCtx, cancels
+	taskCtxWithTime, taskCtxWithTimeCancel := context.WithTimeout(taskCtx, s.config.Timeout)
+	cancels = append(cancels, taskCtxWithTimeCancel)
+
+	return taskCtxWithTime, cancels
+}
+
+func (s *VideoScraper) cancelContexts(cancels []context.CancelFunc) {
+	// 按照反向顺序清理资源
+	for i := len(cancels) - 1; i >= 0; i-- {
+		cancels[i]()
+	}
 }
 
 // ScrapeVideo 抓取视频URL
-func (s *VideoScraper) ScrapeVideo(ctx context.Context, url string) (string, error) {
+func (s *VideoScraper) ScrapeVideo(url string) (string, error) {
 	// 创建新的上下文和取消函数列表
-	ctxChromedp, cancels := s.createContext(ctx)
+	ctxChromedp, cancels := s.createContext(context.Background())
+	defer s.cancelContexts(cancels)
 
-	// 确保所有资源都被清理
-	defer func() {
-		// 按照反向顺序清理资源
-		for i := len(cancels) - 1; i >= 0; i-- {
-			cancels[i]()
-		}
-	}()
-
-	ctxChromedpWithTime, cancel := context.WithTimeout(ctxChromedp, s.config.Timeout)
-	defer cancel()
-
-	var lastErr error
-	for i := 0; i < s.config.RetryCount; i++ {
-		videoURL, err := s.scrapeVideoWithRetry(ctxChromedpWithTime, url)
-		if err == nil {
-			return videoURL, nil
-		}
-		lastErr = err
-		if i < s.config.RetryCount {
-			time.Sleep(s.config.RetryInterval)
-		}
-	}
-	return "", fmt.Errorf("%d次尝试后失败: %v", s.config.RetryCount, lastErr)
-}
-
-// scrapeVideoWithRetry 带重试的视频抓取
-func (s *VideoScraper) scrapeVideoWithRetry(ctx context.Context, url string) (string, error) {
 	urlChan := make(chan string, 1)
 	errChan := make(chan error, 1)
 
 	// 设置网络请求监听器
-	s.setupNetworkListener(ctx, urlChan)
+	s.setupNetworkListener(ctxChromedp, urlChan)
 
 	// 执行页面导航
-	go s.navigateToPage(ctx, url, errChan)
+	go s.navigateToPage(ctxChromedp, url, errChan)
 
-	return s.waitForResult(ctx, urlChan, errChan)
+	return s.waitForResult(ctxChromedp, urlChan, errChan)
 }
 
 // setupNetworkListener 设置网络请求监听
@@ -241,9 +231,9 @@ func (s *VideoScraper) navigateToPage(ctx context.Context, url string, errChan c
 func (s *VideoScraper) waitForResult(ctx context.Context, urlChan <-chan string, errChan <-chan error) (string, error) {
 	select {
 	case videoUrl := <-urlChan:
-		return s.scrapeVideoUrl(ctx, videoUrl)
+		return s.scrapeVideoUrl(videoUrl)
 	case err := <-errChan:
-		return "", fmt.Errorf("监听m3u8链接失败: %v", err)
+		return "", fmt.Errorf("获取m3u8链接失败: %v", err)
 	case <-ctx.Done():
 		return "", fmt.Errorf("scrapeVideoWithRetry方法超时: %v", ctx.Err())
 	}
@@ -253,9 +243,29 @@ func (s *VideoScraper) waitForResult(ctx context.Context, urlChan <-chan string,
 // 该函数的作用是通过给定的URL导航到视频页面，并提取视频元素的源URL。
 // 它使用chromedp库来控制浏览器，执行一系列操作以确保页面加载完成并且视频元素可见。
 // 最终，它将视频的URL返回给调用者。
-func (s *VideoScraper) scrapeVideoUrl(ctx context.Context, url string) (string, error) {
+func (s *VideoScraper) scrapeVideoUrl(url string) (string, error) {
+	log.Printf("开始监听m3u8链接: %v\n", url)
+
+	for i := 0; i < s.config.RetryCount; i++ {
+		videoURL, err := s.scrapeVideoUrlWithRetry(url)
+		if err != nil {
+			log.Printf("第%d次尝试失败: %v\n", i+1, err)
+		} else {
+			return videoURL, nil
+		}
+		if i != s.config.RetryCount-1 {
+			time.Sleep(s.config.RetryInterval)
+		}
+	}
+	return "", fmt.Errorf("%d次尝试全部失败", s.config.RetryCount)
+}
+
+func (s *VideoScraper) scrapeVideoUrlWithRetry(url string) (string, error) {
+	taskCtx, cancels := s.createContext(context.Background())
+	defer s.cancelContexts(cancels)
+
 	var videoUrl string
-	err := chromedp.Run(ctx,
+	err := chromedp.Run(taskCtx,
 		network.Enable(),                                                  // 启用网络请求监听
 		chromedp.Navigate(url),                                            // 导航到指定的URL
 		chromedp.WaitReady("body", chromedp.ByQuery),                      // 等待页面的body元素准备好
@@ -264,7 +274,8 @@ func (s *VideoScraper) scrapeVideoUrl(ctx context.Context, url string) (string, 
 	)
 
 	if err != nil {
-		if ctx.Err() != nil {
+		if taskCtx.Err() != nil {
+			chromedp.Cancel(taskCtx)
 			return "", fmt.Errorf("chromedp.Run访问m3u8链接超时: %v", err) // 如果上下文超时，返回超时错误
 		}
 		return "", fmt.Errorf("chromedp.Run访问m3u8链接失败: %v", err) // 返回提取视频URL失败的错误
