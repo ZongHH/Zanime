@@ -1,6 +1,7 @@
 // =================== ****************** ================== //
 
 import axios from "axios";
+import { ElMessage } from 'element-plus'
 
 // Template Name: Anime tube
 // Description:  Anime tube
@@ -37,20 +38,7 @@ var Init = {
   },
 
   showError: function (message) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
-      text: message,
-      customClass: {
-        popup: 'swal2-modal swal2-show swal2-round-modal',
-        title: 'swal2-title swal2-round-title',
-        content: 'swal2-content swal2-round-content',
-        confirmButton: 'swal2-confirm swal2-round-confirm-button'
-      },
-      buttonsStyling: false,
-      confirmButtonText: 'OK',
-      confirmButtonClass: 'swal2-confirm swal2-styled swal2-round-confirm-button swal2-danger'
-    });
+    ElMessage.error("服务器繁忙，请刷新重试")
   },
 
   initVideoPlayerFromBackend: async function () {
