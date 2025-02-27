@@ -4,13 +4,10 @@ import (
 	"context"
 	"crawler/internal/domain/service"
 	"fmt"
+	"log"
+	"math/rand/v2"
 	"sync/atomic"
 	"time"
-)
-
-var (
-	successID  int64 = 0 // 最新完成的请求ID
-	totalCount int64 = 0 // 总请求次数
 )
 
 type Server struct {
@@ -18,38 +15,46 @@ type Server struct {
 	Searcher service.SearchService
 }
 
-func (s *Server) ScrapeVideoUrl(ctx context.Context, parms *VideoParms) (*VideoMsg, error) {
-	requestID := atomic.AddInt64(&totalCount, 1)
+var requestQueue = make(chan struct{}, 1)
+var totalRequestCount int64 = 0
 
-	for {
-		select {
-		case <-ctx.Done():
-			return nil, fmt.Errorf("等待排队爬取超时: %v", ctx.Err())
-		default:
-		}
-		if requestID == atomic.LoadInt64(&successID)+1 {
-			break
-		}
-		time.Sleep(200 * time.Millisecond)
+// NewServer 创建一个新的Server实例
+func NewServer(searcher service.SearchService) *Server {
+	return &Server{
+		Searcher: searcher,
+	}
+}
+
+func (s *Server) ScrapeVideoUrl(ctx context.Context, parms *VideoParms) (*VideoMsg, error) {
+	requestID := atomic.AddInt64(&totalRequestCount, 1)
+
+	select {
+	case requestQueue <- struct{}{}:
+		defer func() { <-requestQueue }() // 确保信号量被释放
+	case <-ctx.Done():
+		log.Printf("请求ID: %v, 动漫: %v, 选集: %v等待排队请求超时\n", requestID, parms.Name, parms.Episode)
+		return nil, fmt.Errorf("等待排队超时: %v", ctx.Err())
 	}
 
-	videoUrl, err := s.Searcher.SearchAnime(ctx,
+	randomDelay := time.Duration(500)*time.Millisecond + time.Duration(rand.IntN(500))*time.Millisecond
+	// 随机延迟一段时间
+	time.Sleep(randomDelay)
+	fmt.Printf("随机延迟: %v\n", randomDelay)
+
+	// 执行爬取操作
+	videoUrl, err := s.Searcher.SearchAnime(
+		ctx,
 		parms.Name,
 		parms.Release,
 		parms.Area,
 		parms.Episode,
 	)
 
-	// successID更新为requestID
-	atomic.StoreInt64(&successID, requestID)
-
+	// 处理错误
 	if err != nil {
+		log.Printf("gRpc请求错误: %v\n", err)
 		return nil, err
 	}
 
-	var videoMsg = &VideoMsg{
-		Url: videoUrl,
-	}
-
-	return videoMsg, nil
+	return &VideoMsg{Url: videoUrl}, nil
 }
