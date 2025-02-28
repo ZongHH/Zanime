@@ -1,4 +1,7 @@
 <template>
+    <div class="announcement-bar">
+        <marquee behavior="scroll" direction="left">本网站提供的内容仅供学习和研究使用，所有版权归原作者所有。请勿用于商业目的，若有侵权请及时联系删除。</marquee>
+    </div>
 
     <!-- HERO BANNER START -->
     <section class="hero-banner">
@@ -60,7 +63,7 @@
                                 <span class="btn-text">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewbox="0 0 20 20"
                                         fill="none">
-                                        <g clip-path="url(#clip0_11687_723)">
+                                        <g clip-path="url(#clip0_11687_724)">
                                             <path
                                                 d="M10 0C4.47254 0 0 4.47293 0 10C0 15.5275 4.47293 20 10 20C15.5275 20 20 15.5271 20 10C20 4.47254 15.527 0 10 0ZM10 18.4375C5.33621 18.4375 1.5625 14.6635 1.5625 10C1.5625 5.33621 5.33652 1.5625 10 1.5625C14.6638 1.5625 18.4375 5.33652 18.4375 10C18.4375 14.6638 14.6634 18.4375 10 18.4375Z"
                                                 fill="#FAFAFA"></path>
@@ -495,5 +498,14 @@ import app from '@/static/js/app';
 
 .search-dropdown::-webkit-scrollbar-thumb:hover {
     background: #555;
+}
+
+.announcement-bar {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding-top: 4px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
 }
 </style>

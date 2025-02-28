@@ -31,11 +31,11 @@
                             <i class="fas fa-user-plus"></i>
                             关注作者
                         </button>
-                        <button class="action-btn edit" v-if="isAuthor" @click="editPost">
+                        <button class="action-btn edit" v-if="isAuthor" @click="followAuthor">
                             <i class="fas fa-edit"></i>
                             编辑
                         </button>
-                        <button class="action-btn delete" v-if="isAuthor" @click="deletePost">
+                        <button class="action-btn delete" v-if="isAuthor" @click="followAuthor">
                             <i class="fas fa-trash-alt"></i>
                             删除
                         </button>
@@ -95,7 +95,7 @@
 <script>
 import axios from 'axios';
 import Comment from './Comment.vue';
-
+import { ElMessage } from 'element-plus';
 
 export default {
     name: 'PostDetail',
@@ -320,7 +320,7 @@ export default {
          * 关注作者
          */
         async followAuthor() {
-            // 实现关注作者的逻辑
+            ElMessage.warning("服务暂未开放")
         },
 
         /**
@@ -488,6 +488,15 @@ export default {
             } catch (error) {
                 console.error('获取用户信息失败:', error);
             }
+        },
+
+        sharePost() {
+            const postUrl = `${window.location.origin}/post/${this.post.id}`;
+            navigator.clipboard.writeText(postUrl).then(() => {
+                ElMessage.success('复制链接成功，快分享给好友吧！');
+            }).catch(err => {
+                ElMessage.error('复制链接失败:', err);
+            });
         }
     },
     async mounted() {
