@@ -2,9 +2,9 @@
     <!-- HEADER MENU START -->
     <header class="header">
         <nav class="navigation d-flex align-items-center justify-content-between">
-            <a href="" class="d-flex align-items-center">
+            <router-link to="/" class="d-flex align-items-center">
                 <img src="@/static/picture/logo.png" alt="/logo" class="header-logo">
-            </a>
+            </router-link>
             <div class="menu-button-right">
                 <div class="main-menu__nav">
                     <ul class="main-menu__list">
@@ -25,20 +25,6 @@
                                             class="coming-soon">开发中</span></a></li>
                             </ul>
                         </li>
-                        <li class="dropdown disabled">
-                            <a href="#" @click.prevent>
-                                分类
-                                <i class="fas fa-chevron-down"></i>
-                                <span class="coming-soon">开发中</span>
-                            </a>
-                        </li>
-                        <li class="dropdown disabled">
-                            <a href="#" @click.prevent>
-                                时间表
-                                <i class="fas fa-chevron-down"></i>
-                                <span class="coming-soon">开发中</span>
-                            </a>
-                        </li>
                         <li class="dropdown">
                             <router-link to="/discussion" :class="{ active: activeMenuItem === 'community' }">
                                 社区
@@ -50,6 +36,17 @@
                                             class="coming-soon">开发中</span></a></li>
                                 <li class="disabled"><a href="#" @click.prevent>排行榜 <span
                                             class="coming-soon">开发中</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown disabled">
+                            <router-link to="#">
+                                反馈中心
+                                <i class="fas fa-chevron-down"></i>
+                                <span class="coming-soon">开发中</span>
+                            </router-link>
+                            <ul class="dropdown-menu">
+                                <li><router-link to="#">反馈建议</router-link></li>
+                                <li><router-link to="#">反馈BUG</router-link></li>
                             </ul>
                         </li>
                     </ul>
@@ -129,7 +126,7 @@
                             </li>
                             <!-- Optional divider -->
                             <li>
-                                <a href="#">
+                                <a href="#" @click.prevent="showHelpModal">
                                     <i class="fa-solid fa-info"></i>
                                     帮助
                                 </a>
@@ -148,15 +145,22 @@
                 <i class="fa-light fa-bars"></i>
             </a>
         </nav>
+        <Help :isVisible="showHelp" @close="showHelp = false" />
     </header>
     <!-- HEADER MENU END -->
 </template>
 
 <script>
+import Notify from '@/components/Notify.vue';
+import Help from '@/components/general/Help.vue';
+import Logout from '@/static/js/general.js';
+import axios from 'axios';
+
 export default {
     data() {
         return {
             showNotifications: false,
+            showHelp: false,
             notifications: [
                 { id: 1, title: "新番更新！", message: "《鬼灭之刃》最新一集已上线，快来观看！", time: "2分钟前" },
                 { id: 2, title: "漫画更新", message: "《海贼王》新章节已发布，立即查看！", time: "15分钟前" },
@@ -172,6 +176,9 @@ export default {
     methods: {
         toggleNotifications() {
             this.showNotifications = !this.showNotifications;
+        },
+        showHelpModal() {
+            this.showHelp = true;
         },
         handleSearchInput() {
             // 防抖处理
@@ -238,12 +245,9 @@ export default {
     },
     components: {
         Notify,
+        Help,
     },
 };
-
-import Notify from '@/components/Notify.vue';
-import axios from 'axios';
-import Logout from '@/static/js/general';
 </script>
 
 <style scoped>

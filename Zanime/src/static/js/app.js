@@ -37,8 +37,12 @@ var Init = {
     Init.niceSelect();
   },
 
-  showError: function (message) {
+  showError: function () {
     ElMessage.error("服务器繁忙，请刷新重试")
+  },
+
+  showSuccess: function () {
+    ElMessage.success("成功获取到视频资源")
   },
 
   initVideoPlayerFromBackend: async function () {
@@ -49,14 +53,14 @@ var Init = {
 
     try {
       const response = await axios.get(`/api/video-resource?videoId=${videoId}&episode=${episode}`)
-      if (response.data.code == 200) {
+      if (response.data.code === 200) {
+        Init.showSuccess()
         Init.initVideoPlayer("#video", response.data.VideoFiles, response.data.PosterPath, true);
       } else {
-        Init.showError(response.data.message)
+        throw new Error(response.data.message)
       }
-
     } catch (error) {
-      Init.showError(error)
+      Init.showError()
     }
   },
 
@@ -576,23 +580,15 @@ export async function VideoPlayer() {
   const episode = urlParams.get('episode');
 
   try {
-    const response = await fetch(`/api/video-resource?videoId=${videoId}&episode=${episode}`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    console.log(data.VideoFiles);
-
-    // 直接调用初始化视频播放器
-    if (document.querySelector("#video")) {
-      $("#video").aksVideoPlayer({
-        file: data.VideoFiles,
-        poster: data.PosterPath,
-        forward: true
-      });
+    const response = await axios.get(`/api/video-resource?videoId=${videoId}&episode=${episode}`);
+    if (response.data.code === 200) {
+      Init.showSuccess()
+      Init.initVideoPlayer("#video", response.data.VideoFiles, response.data.PosterPath, true);
+    } else {
+      throw new Error(response.data.message);
     }
   } catch (error) {
-    Init.showError(error);
+    Init.showError();
   }
 }
 

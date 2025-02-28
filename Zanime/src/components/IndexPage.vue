@@ -1,4 +1,7 @@
 <template>
+    <div class="announcement-bar">
+        <marquee behavior="scroll" direction="left">本网站提供的内容仅供学习和研究使用，所有版权归原作者所有。请勿用于商业目的，若有侵权请及时联系删除。</marquee>
+    </div>
 
     <!-- HERO BANNER START -->
     <section class="hero-banner">
@@ -34,7 +37,7 @@
                                     现在播放
                                 </span>
                             </a>
-                            <a href="" class="cus-btn-2" @click.prevent="handleMoreInfo(homeAnime)">
+                            <a href="" class="cus-btn-2" @click.prevent="handleMoreInfo(homeAnime.video_name)">
                                 <span class="btn-text">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewbox="0 0 20 20"
                                         fill="none">
@@ -60,7 +63,7 @@
                                 <span class="btn-text">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewbox="0 0 20 20"
                                         fill="none">
-                                        <g clip-path="url(#clip0_11687_723)">
+                                        <g clip-path="url(#clip0_11687_724)">
                                             <path
                                                 d="M10 0C4.47254 0 0 4.47293 0 10C0 15.5275 4.47293 20 10 20C15.5275 20 20 15.5271 20 10C20 4.47254 15.527 0 10 0ZM10 18.4375C5.33621 18.4375 1.5625 14.6635 1.5625 10C1.5625 5.33621 5.33652 1.5625 10 1.5625C14.6638 1.5625 18.4375 5.33652 18.4375 10C18.4375 14.6638 14.6634 18.4375 10 18.4375Z"
                                                 fill="#FAFAFA"></path>
@@ -101,8 +104,58 @@
     </section>
     <!-- HERO BANNER END -->
 
+    <!--accordion start -->
+    <section class="mt-40">
+        <div class="container-fluid">
+            <div class="heading mb-24">
+                <h4 class="white mb-12">为你推荐</h4>
+                <router-link to="/animeLibrary?type=top" class="p white">查看所有 <span><i
+                            class="fa-regular fa-chevron-right"></i></span></router-link>
+            </div>
+            <div class="anime-grid">
+                <a href="#" class="anime-card gap-24" v-for="(anime, _) in topAnime.slice(0, 5)" :key="anime.video_id"
+                    @click.prevent="JumpMovies(anime)">
+                    <img :src="anime.cover_image_url" alt="pic" class="fixed-size-img">
+                    <div class="overlay"></div>
+                    <div class="text">
+                        <h6 class="white">{{ anime.video_name }}</h6>
+                    </div>
+                </a>
+            </div>
+            <div class="accordion" id="accordionPanelsStayOpenExample">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true"
+                            aria-controls="panelsStayOpen-collapseOne">
+                            查看更多 <span><i class="fa-light fa-chevron-down"></i></span>
+                        </button>
+                    </h2>
+                    <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse"
+                        aria-labelledby="panelsStayOpen-headingOne">
+                        <div class="accordion-body">
+                            <div class="anime-grid">
+                                <a href="#" class="anime-card gap-24" v-for="(anime, _) in topAnime.slice(5, 10)"
+                                    :key="anime.video_id" @click.prevent="JumpMovies(anime)">
+                                    <img :src="anime.cover_image_url" alt="pic" class="fixed-size-img">
+                                    <div class="overlay"></div>
+                                    <div class="text">
+                                        <h6 class="white">{{ anime.video_name }}</h6>
+                                        <p class="white">{{ anime.genre }}</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+    <!--accordion end  -->
+
     <!-- Trending Area Start -->
-    <section class="mt-40 mb-48" v-if="japanAnime">
+    <section class="mb-48" v-if="japanAnime">
         <div class="container-fluid">
             <div class="heading mb-24">
                 <h4 class="white mb-12">日本动漫</h4>
@@ -127,7 +180,7 @@
     <!-- Trending Area End -->
 
     <!-- New Releases Start -->
-    <section class="my-48">
+    <section class="mt-48 mb-40">
         <div class="container-fluid">
             <div class="heading mb-24">
                 <h4 class="white mb-12">国产动漫</h4>
@@ -150,8 +203,100 @@
     </section>
     <!-- New Releases end -->
 
+    <!-- inner-banner start -->
+    <section class="inner-banner">
+        <div class="container-fluid">
+            <div class="content">
+                <ul class="tabs d-flex gap-8 list-unstyled mb-12">
+                    <li>热血</li>
+                    <li>战斗</li>
+                    <li>奇幻</li>
+                    <li>国产动漫</li>
+                </ul>
+                <h1 class="white mb-12">斗破苍穹 第122集</h1>
+                <p class="white mb-48">三年之约后，萧炎终于在迦南学院见到了薰儿，此后他广交挚友并成立磐门；为继续提升实力以三上云岚宗为父复仇，<br>
+                    他以身犯险深入天焚炼气塔吞噬陨落心炎…影片通过细腻的表现手法，带你进入一个全新的世界。</p>
+                <div class="gap-24 d-flex">
+                    <a href="" class="cus-btn" @click.prevent="JumpMovies({ video_id: 5389 })">
+                        <span class="btn-text">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="21" viewbox="0 0 20 21"
+                                fill="none">
+                                <g clip-path="url(#clip0_11735_317)">
+                                    <path
+                                        d="M16.6755 9.3536L4.87079 0.772465C4.43757 0.458428 3.86247 0.411134 3.38763 0.655174C2.90901 0.897323 2.61011 1.38919 2.61011 1.92078V19.0774C2.61011 19.6146 2.90901 20.1046 3.38763 20.3468C3.59005 20.4489 3.81139 20.5 4.03462 20.5C4.32596 20.5 4.62107 20.4073 4.87079 20.2238L16.6755 11.6502C17.0482 11.3759 17.2658 10.9522 17.2658 10.5019C17.2677 10.0441 17.0444 9.62223 16.6755 9.3536Z"
+                                        fill="#FAFAFA"></path>
+                                </g>
+                                <defs>
+                                    <clippath id="clip0_11735_317">
+                                        <rect width="20" height="20" fill="white" transform="translate(0 0.5)">
+                                        </rect>
+                                    </clippath>
+                                </defs>
+                            </svg>
+                            立即观看
+                        </span>
+                        <span class="btn-text">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="21" viewbox="0 0 20 21"
+                                fill="none">
+                                <g clip-path="url(#clip0_11735_317)">
+                                    <path
+                                        d="M16.6755 9.3536L4.87079 0.772465C4.43757 0.458428 3.86247 0.411134 3.38763 0.655174C2.90901 0.897323 2.61011 1.38919 2.61011 1.92078V19.0774C2.61011 19.6146 2.90901 20.1046 3.38763 20.3468C3.59005 20.4489 3.81139 20.5 4.03462 20.5C4.32596 20.5 4.62107 20.4073 4.87079 20.2238L16.6755 11.6502C17.0482 11.3759 17.2658 10.9522 17.2658 10.5019C17.2677 10.0441 17.0444 9.62223 16.6755 9.3536Z"
+                                        fill="#FAFAFA"></path>
+                                </g>
+                                <defs>
+                                    <clippath id="clip0_11735_318">
+                                        <rect width="20" height="20" fill="white" transform="translate(0 0.5)">
+                                        </rect>
+                                    </clippath>
+                                </defs>
+                            </svg>
+                            立即观看
+                        </span>
+                    </a>
+                    <a href="" class="cus-btn-2" @click.prevent="handleMoreInfo('斗破苍穹')">
+                        <span class=" btn-text">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="21" viewbox="0 0 20 21"
+                                fill="none">
+                                <g clip-path="url(#clip0_11735_635)">
+                                    <path
+                                        d="M16.0547 10.768V8.89844C16.0547 6.17102 14.2418 3.85934 11.7579 3.1043V2.25781C11.7579 1.28855 10.9693 0.5 10 0.5C9.03079 0.5 8.24223 1.28855 8.24223 2.25781V3.1043C5.75825 3.85934 3.94536 6.17098 3.94536 8.89844V10.768C3.94536 13.1638 3.03216 15.4355 1.37399 17.1648C1.21149 17.3342 1.16583 17.5843 1.25794 17.8002C1.35005 18.0161 1.56216 18.1562 1.79692 18.1562H7.1293C7.40149 19.4919 8.58524 20.5 10 20.5C11.4149 20.5 12.5986 19.4919 12.8708 18.1562H18.2032C18.4379 18.1562 18.65 18.0161 18.7421 17.8002C18.8342 17.5843 18.7886 17.3342 18.6261 17.1648C16.9679 15.4355 16.0547 13.1638 16.0547 10.768ZM9.41411 2.25781C9.41411 1.93473 9.67696 1.67188 10 1.67188C10.3231 1.67188 10.586 1.93473 10.586 2.25781V2.87219C10.3931 2.85359 10.1977 2.84375 10 2.84375C9.80239 2.84375 9.60696 2.85359 9.41411 2.87219V2.25781ZM10 19.3281C9.23618 19.3281 8.58489 18.8382 8.34301 18.1562H11.6571C11.4152 18.8382 10.7639 19.3281 10 19.3281ZM3.05981 16.9844C4.39423 15.1956 5.11723 13.0309 5.11723 10.768V8.89844C5.11723 6.20605 7.30766 4.01562 10 4.01562C12.6924 4.01562 14.8829 6.20605 14.8829 8.89844V10.768C14.8829 13.0309 15.6059 15.1956 16.9403 16.9844H3.05981Z"
+                                        fill="#FAFAFA"></path>
+                                </g>
+                                <defs>
+                                    <clippath id="clip0_11735_635">
+                                        <rect width="20" height="20" fill="white" transform="translate(0 0.5)">
+                                        </rect>
+                                    </clippath>
+                                </defs>
+                            </svg>
+                            更多信息
+                        </span>
+                        <span class="btn-text">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="21" viewbox="0 0 20 21"
+                                fill="none">
+                                <g clip-path="url(#clip0_11735_636)">
+                                    <path
+                                        d="M16.0547 10.768V8.89844C16.0547 6.17102 14.2418 3.85934 11.7579 3.1043V2.25781C11.7579 1.28855 10.9693 0.5 10 0.5C9.03079 0.5 8.24223 1.28855 8.24223 2.25781V3.1043C5.75825 3.85934 3.94536 6.17098 3.94536 8.89844V10.768C3.94536 13.1638 3.03216 15.4355 1.37399 17.1648C1.21149 17.3342 1.16583 17.5843 1.25794 17.8002C1.35005 18.0161 1.56216 18.1562 1.79692 18.1562H7.1293C7.40149 19.4919 8.58524 20.5 10 20.5C11.4149 20.5 12.5986 19.4919 12.8708 18.1562H18.2032C18.4379 18.1562 18.65 18.0161 18.7421 17.8002C18.8342 17.5843 18.7886 17.3342 18.6261 17.1648C16.9679 15.4355 16.0547 13.1638 16.0547 10.768ZM9.41411 2.25781C9.41411 1.93473 9.67696 1.67188 10 1.67188C10.3231 1.67188 10.586 1.93473 10.586 2.25781V2.87219C10.3931 2.85359 10.1977 2.84375 10 2.84375C9.80239 2.84375 9.60696 2.85359 9.41411 2.87219V2.25781ZM10 19.3281C9.23618 19.3281 8.58489 18.8382 8.34301 18.1562H11.6571C11.4152 18.8382 10.7639 19.3281 10 19.3281ZM3.05981 16.9844C4.39423 15.1956 5.11723 13.0309 5.11723 10.768V8.89844C5.11723 6.20605 7.30766 4.01562 10 4.01562C12.6924 4.01562 14.8829 6.20605 14.8829 8.89844V10.768C14.8829 13.0309 15.6059 15.1956 16.9403 16.9844H3.05981Z"
+                                        fill="#FAFAFA"></path>
+                                </g>
+                                <defs>
+                                    <clippath id="clip0_11735_637">
+                                        <rect width="20" height="20" fill="white" transform="translate(0 0.5)">
+                                        </rect>
+                                    </clippath>
+                                </defs>
+                            </svg>
+                            更多信息
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- inner-banner end -->
+
     <!-- Top-picks start -->
-    <section class="mt-48 mb-40">
+    <section class="mt-48 mb-24">
         <div class="container-fluid">
             <div class="heading mb-24">
                 <h4 class="white mb-12">欧美动漫</h4>
@@ -173,188 +318,6 @@
         </div>
     </section>
     <!-- Top-picks end -->
-
-    <!-- inner-banner start -->
-    <section class="inner-banner">
-        <div class="container-fluid">
-            <div class="content">
-                <ul class="tabs d-flex gap-8 list-unstyled mb-12">
-                    <li>热血</li>
-                    <li>战斗</li>
-                    <li>奇幻</li>
-                    <li>国产动漫</li>
-                </ul>
-                <h1 class="white mb-12">斗破苍穹 第122集</h1>
-                <p class="white mb-48">三年之约后，萧炎终于在迦南学院见到了薰儿，此后他广交挚友并成立磐门；为继续提升实力以三上云岚宗为父复仇，<br>
-                    他以身犯险深入天焚炼气塔吞噬陨落心炎…影片通过细腻的表现手法，带你进入一个全新的世界。</p>
-                <div class="gap-24 d-flex">
-                    <a href="" class="cus-btn">
-                        <span class="btn-text">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="21" viewbox="0 0 20 21"
-                                fill="none">
-                                <g clip-path="url(#clip0_11735_317)">
-                                    <path
-                                        d="M16.6755 9.3536L4.87079 0.772465C4.43757 0.458428 3.86247 0.411134 3.38763 0.655174C2.90901 0.897323 2.61011 1.38919 2.61011 1.92078V19.0774C2.61011 19.6146 2.90901 20.1046 3.38763 20.3468C3.59005 20.4489 3.81139 20.5 4.03462 20.5C4.32596 20.5 4.62107 20.4073 4.87079 20.2238L16.6755 11.6502C17.0482 11.3759 17.2658 10.9522 17.2658 10.5019C17.2677 10.0441 17.0444 9.62223 16.6755 9.3536Z"
-                                        fill="#FAFAFA"></path>
-                                </g>
-                                <defs>
-                                    <clippath id="clip0_11735_317">
-                                        <rect width="20" height="20" fill="white" transform="translate(0 0.5)">
-                                        </rect>
-                                    </clippath>
-                                </defs>
-                            </svg>
-                            观看预告片
-                        </span>
-                        <span class="btn-text">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="21" viewbox="0 0 20 21"
-                                fill="none">
-                                <g clip-path="url(#clip0_11735_317)">
-                                    <path
-                                        d="M16.6755 9.3536L4.87079 0.772465C4.43757 0.458428 3.86247 0.411134 3.38763 0.655174C2.90901 0.897323 2.61011 1.38919 2.61011 1.92078V19.0774C2.61011 19.6146 2.90901 20.1046 3.38763 20.3468C3.59005 20.4489 3.81139 20.5 4.03462 20.5C4.32596 20.5 4.62107 20.4073 4.87079 20.2238L16.6755 11.6502C17.0482 11.3759 17.2658 10.9522 17.2658 10.5019C17.2677 10.0441 17.0444 9.62223 16.6755 9.3536Z"
-                                        fill="#FAFAFA"></path>
-                                </g>
-                                <defs>
-                                    <clippath id="clip0_11735_318">
-                                        <rect width="20" height="20" fill="white" transform="translate(0 0.5)">
-                                        </rect>
-                                    </clippath>
-                                </defs>
-                            </svg>
-                            观看预告片
-                        </span>
-                    </a>
-                    <a href="" class="cus-btn-2">
-                        <span class="btn-text">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="21" viewbox="0 0 20 21"
-                                fill="none">
-                                <g clip-path="url(#clip0_11735_635)">
-                                    <path
-                                        d="M16.0547 10.768V8.89844C16.0547 6.17102 14.2418 3.85934 11.7579 3.1043V2.25781C11.7579 1.28855 10.9693 0.5 10 0.5C9.03079 0.5 8.24223 1.28855 8.24223 2.25781V3.1043C5.75825 3.85934 3.94536 6.17098 3.94536 8.89844V10.768C3.94536 13.1638 3.03216 15.4355 1.37399 17.1648C1.21149 17.3342 1.16583 17.5843 1.25794 17.8002C1.35005 18.0161 1.56216 18.1562 1.79692 18.1562H7.1293C7.40149 19.4919 8.58524 20.5 10 20.5C11.4149 20.5 12.5986 19.4919 12.8708 18.1562H18.2032C18.4379 18.1562 18.65 18.0161 18.7421 17.8002C18.8342 17.5843 18.7886 17.3342 18.6261 17.1648C16.9679 15.4355 16.0547 13.1638 16.0547 10.768ZM9.41411 2.25781C9.41411 1.93473 9.67696 1.67188 10 1.67188C10.3231 1.67188 10.586 1.93473 10.586 2.25781V2.87219C10.3931 2.85359 10.1977 2.84375 10 2.84375C9.80239 2.84375 9.60696 2.85359 9.41411 2.87219V2.25781ZM10 19.3281C9.23618 19.3281 8.58489 18.8382 8.34301 18.1562H11.6571C11.4152 18.8382 10.7639 19.3281 10 19.3281ZM3.05981 16.9844C4.39423 15.1956 5.11723 13.0309 5.11723 10.768V8.89844C5.11723 6.20605 7.30766 4.01562 10 4.01562C12.6924 4.01562 14.8829 6.20605 14.8829 8.89844V10.768C14.8829 13.0309 15.6059 15.1956 16.9403 16.9844H3.05981Z"
-                                        fill="#FAFAFA"></path>
-                                </g>
-                                <defs>
-                                    <clippath id="clip0_11735_635">
-                                        <rect width="20" height="20" fill="white" transform="translate(0 0.5)">
-                                        </rect>
-                                    </clippath>
-                                </defs>
-                            </svg>
-                            提醒我
-                        </span>
-                        <span class="btn-text">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="21" viewbox="0 0 20 21"
-                                fill="none">
-                                <g clip-path="url(#clip0_11735_636)">
-                                    <path
-                                        d="M16.0547 10.768V8.89844C16.0547 6.17102 14.2418 3.85934 11.7579 3.1043V2.25781C11.7579 1.28855 10.9693 0.5 10 0.5C9.03079 0.5 8.24223 1.28855 8.24223 2.25781V3.1043C5.75825 3.85934 3.94536 6.17098 3.94536 8.89844V10.768C3.94536 13.1638 3.03216 15.4355 1.37399 17.1648C1.21149 17.3342 1.16583 17.5843 1.25794 17.8002C1.35005 18.0161 1.56216 18.1562 1.79692 18.1562H7.1293C7.40149 19.4919 8.58524 20.5 10 20.5C11.4149 20.5 12.5986 19.4919 12.8708 18.1562H18.2032C18.4379 18.1562 18.65 18.0161 18.7421 17.8002C18.8342 17.5843 18.7886 17.3342 18.6261 17.1648C16.9679 15.4355 16.0547 13.1638 16.0547 10.768ZM9.41411 2.25781C9.41411 1.93473 9.67696 1.67188 10 1.67188C10.3231 1.67188 10.586 1.93473 10.586 2.25781V2.87219C10.3931 2.85359 10.1977 2.84375 10 2.84375C9.80239 2.84375 9.60696 2.85359 9.41411 2.87219V2.25781ZM10 19.3281C9.23618 19.3281 8.58489 18.8382 8.34301 18.1562H11.6571C11.4152 18.8382 10.7639 19.3281 10 19.3281ZM3.05981 16.9844C4.39423 15.1956 5.11723 13.0309 5.11723 10.768V8.89844C5.11723 6.20605 7.30766 4.01562 10 4.01562C12.6924 4.01562 14.8829 6.20605 14.8829 8.89844V10.768C14.8829 13.0309 15.6059 15.1956 16.9403 16.9844H3.05981Z"
-                                        fill="#FAFAFA"></path>
-                                </g>
-                                <defs>
-                                    <clippath id="clip0_11735_637">
-                                        <rect width="20" height="20" fill="white" transform="translate(0 0.5)">
-                                        </rect>
-                                    </clippath>
-                                </defs>
-                            </svg>
-                            提醒我
-                        </span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- inner-banner end -->
-
-    <!--accordion start -->
-    <section class=" mt-48 mb-24">
-        <div class="container-fluid">
-            <div class="heading mb-24">
-                <h4 class="white mb-12">为你推荐</h4>
-                <router-link to="/animeLibrary?type=top" class="p white">查看所有 <span><i
-                            class="fa-regular fa-chevron-right"></i></span></router-link>
-            </div>
-            <div class="anime-grid">
-                <a href="#" class="anime-card gap-24" v-for="(anime, _) in topAnime" :key="anime.video_id"
-                    @click.prevent="JumpMovies(anime)">
-                    <img :src="anime.cover_image_url" alt="pic" class="fixed-size-img">
-                    <div class="overlay"></div>
-                    <div class="text">
-                        <h6 class="white">{{ anime.video_name }}</h6>
-                        <!-- <p class="white">Mystery, Supernatural</p> -->
-                    </div>
-                </a>
-            </div>
-            <div class="accordion" id="accordionPanelsStayOpenExample">
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="panelsStayOpen-headingOne">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true"
-                            aria-controls="panelsStayOpen-collapseOne">
-                            查看更多 <span><i class="fa-light fa-chevron-down"></i></span>
-                        </button>
-                    </h2>
-                    <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse"
-                        aria-labelledby="panelsStayOpen-headingOne">
-                        <div class="accordion-body">
-                            <div class="anime-grid">
-                                <a href="animeDetail" class="anime-card gap-24">
-                                    <img src="@/static/picture/anime-01.jpg" alt="pic">
-                                    <div class="overlay"></div>
-                                    <div class="text">
-                                        <h6 class="white">Death Note</h6>
-                                        <p class="white">Mystery, Supernatural</p>
-                                    </div>
-                                </a>
-                                <a href="animeDetail" class="anime-card gap-24">
-                                    <img src="@/static/picture/anime-02.jpg" alt="pic">
-                                    <div class="overlay"></div>
-                                    <div class="text">
-                                        <h6 class="white">Fullmetal Alchemist</h6>
-                                        <p class="white">Action, Adventure, Steampunk</p>
-                                    </div>
-                                </a>
-                                <a href="animeDetail" class="anime-card gap-24">
-                                    <img src="@/static/picture/anime-03.jpg" alt="pic">
-                                    <div class="overlay"></div>
-                                    <div class="text">
-                                        <h6 class="white">Sword Art Online</h6>
-                                        <p class="white">Action, Adventure, Fantasy</p>
-                                    </div>
-                                </a>
-                                <a href="animeDetail" class="anime-card gap-24">
-                                    <img src="@/static/picture/anime-04.jpg" alt="pic">
-                                    <div class="overlay"></div>
-                                    <div class="text">
-                                        <h6 class="white">Tokyo Ghoul</h6>
-                                        <p class="white">Action, Horror, Supernatural</p>
-                                    </div>
-                                </a>
-                                <a href="animeDetail" class="anime-card gap-24">
-                                    <img src="@/static/picture/anime-05.jpg" alt="pic">
-                                    <div class="overlay"></div>
-                                    <div class="text">
-                                        <h6 class="white">Komitsu Uhang</h6>
-                                        <p class="white">Anime, Vervex</p>
-                                    </div>
-                                </a>
-                                <a href="animeDetail" class="anime-card d-xxl-none gap-24">
-                                    <img src="@/static/picture/anime-06.jpg" alt="pic">
-                                    <div class="overlay"></div>
-                                    <div class="text">
-                                        <h6 class="white">Komitsu Uhang</h6>
-                                        <p class="white">Anime, Vervex</p>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </section>
-    <!--accordion start  -->
 
     <!-- collection start -->
     <section class="collection my-24">
@@ -416,8 +379,8 @@ export default {
             }
         },
 
-        handleMoreInfo(info) {
-            this.$router.push(`/animeDetail?params=${encodeURIComponent(info.video_name.trim())}`)
+        handleMoreInfo(videoName) {
+            this.$router.push(`/animeDetail?params=${encodeURIComponent(videoName.trim())}`)
         },
 
         initEvent() {
@@ -535,5 +498,14 @@ import app from '@/static/js/app';
 
 .search-dropdown::-webkit-scrollbar-thumb:hover {
     background: #555;
+}
+
+.announcement-bar {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding-top: 4px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
 }
 </style>

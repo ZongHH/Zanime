@@ -63,6 +63,7 @@
 
 <script>
 import axios from 'axios';
+import { ElMessage } from 'element-plus';
 
 export default {
     props: {
@@ -128,7 +129,12 @@ export default {
             }
         },
         sharePost() {
-            // 实现分享功能
+            const postUrl = `${window.location.origin}/post/${this.post.id}`;
+            navigator.clipboard.writeText(postUrl).then(() => {
+                ElMessage.success('复制链接成功，快分享给好友吧！');
+            }).catch(err => {
+                ElMessage.error('复制链接失败:', err);
+            });
         }
     }
 };

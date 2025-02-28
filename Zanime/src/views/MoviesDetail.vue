@@ -1,11 +1,5 @@
 <template>
     <div class="x-hidden">
-        <!-- PRELOADER START -->
-        <div id="preloader">
-            <div class="loader"></div>
-        </div>
-        <!-- PRELOADER END -->
-
         <!-- Main Wrapper Start -->
         <div id="main-wrapper">
             <HeaderMenu />

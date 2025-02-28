@@ -21,7 +21,7 @@ class RecommendService(RecommendServiceServicer):
             print(f"recommend for user_id: {request.user_id}")
             
             # 调用推荐器获取推荐结果
-            recommendations = recommender.recommend(request.user_id, n_recommendations=5)
+            recommendations = recommender.recommend(request.user_id, n_recommendations=10)
 
             for item in recommendations:
                 print(item)

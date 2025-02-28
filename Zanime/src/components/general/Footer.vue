@@ -7,7 +7,7 @@
                         <h6 class="mb-16 color-primary">开启您的娱乐之旅</h6>
                         <h3 class="white mb-48">开启您的娱乐之旅</h3>
                         <div class="newsletter-field">
-                            <form @submit.prevent="handleSubscribe">
+                            <form @submit.prevent="handleServiceUnavailable">
                                 <input type="email" v-model="email" name="email" class="form-input"
                                     placeholder="输入您的邮箱">
                                 <button type="submit" class="submit-arrow">
@@ -33,57 +33,50 @@
                     <img src="@/static/picture/pngwing.com1.png" alt="pic">
                 </div>
                 <div class="col-lg-6">
-                    <a href="#">
+                    <router-link to="/">
                         <img src="@/static/picture/logo.png" alt="logo" class="header-logo pt-12 mb-24">
-                    </a>
-                    <p>Copyright &copy; 2024 版权所有</p>
+                    </router-link>
                 </div>
                 <div class="col-lg-6">
                     <div class="row row-gap-4">
                         <div class="col-md-3 col-5">
                             <ul class="list-unstyled">
                                 <li class="mb-12">
-                                    <a href="#">首页</a>
+                                    <router-link to="/">首页</router-link>
                                 </li>
                                 <li class="mb-12">
-                                    <a href="#">动漫</a>
-                                </li>
-                                <li class="mb-12">
-                                    <a href="#">电影</a>
+                                    <router-link to="/animeLibrary">动漫</router-link>
                                 </li>
                                 <li>
-                                    <a href="#">博客</a>
+                                    <router-link to="discussion">社区</router-link>
                                 </li>
                             </ul>
                         </div>
                         <div class="col-md-4 col-7">
                             <ul class="list-unstyled">
                                 <li class="mb-12">
-                                    <a href="#">服务条款</a>
+                                    <a href="#" @click.prevent="handleServiceUnavailable">服务条款</a>
                                 </li>
                                 <li class="mb-12">
-                                    <a href="#">隐私政策</a>
+                                    <a href="#" @click.prevent="handleServiceUnavailable">隐私政策</a>
                                 </li>
                                 <li>
-                                    <a href="#">Cookie政策</a>
+                                    <a href="#" @click.prevent="handleServiceUnavailable">Cookie政策</a>
                                 </li>
                             </ul>
                         </div>
                         <div class="col-md-4 col-12">
                             <ul class="list-unstyled">
                                 <li class="mb-12">
-                                    <a href="#" class="white">在线客服</a>
-                                </li>
-                                <li class="mb-12">
-                                    <a href="#">support@example.com</a>
+                                    <a href="#" class="white" @click.prevent="handleServiceUnavailable">在线客服</a>
                                 </li>
                                 <li class="white">
-                                    <a href="#" class="white">关注我们</a>
+                                    <a href="#" class="white" @click.prevent="handleServiceUnavailable">关注我们</a>
                                 </li>
                             </ul>
                             <ul class="list-unstyled gap-16 d-flex">
                                 <li>
-                                    <a href="#">
+                                    <a href="#" @click.prevent="handleServiceUnavailable">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                             viewbox="0 0 24 24" fill="none">
                                             <path
@@ -94,7 +87,7 @@
                                 </li>
 
                                 <li>
-                                    <a href="#">
+                                    <a href="#" @click.prevent="handleServiceUnavailable">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                             viewbox="0 0 24 24" fill="none">
                                             <path d="M19 5L10 14" stroke="#EAEAEC" stroke-linecap="round"
@@ -105,7 +98,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#">
+                                    <a href="#" @click.prevent="handleServiceUnavailable">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                             viewbox="0 0 24 24" fill="none">
                                             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -115,7 +108,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#">
+                                    <a href="#" @click.prevent="handleServiceUnavailable">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                             viewbox="0 0 24 24" fill="none">
                                             <path
@@ -146,6 +139,8 @@
 </template>
 
 <script>
+import { ElMessage } from 'element-plus';
+
 export default {
     name: "FooterComponent",
     data() {
@@ -154,11 +149,8 @@ export default {
         }
     },
     methods: {
-        handleSubscribe(e) {
-            e.preventDefault();
-            // 处理订阅逻辑
-            console.log('订阅邮箱:', this.email);
-            this.email = ''; // 清空输入
+        handleServiceUnavailable() {
+            ElMessage.warning("服务暂未开放");
         },
     }
 };

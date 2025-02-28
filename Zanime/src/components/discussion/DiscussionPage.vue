@@ -37,7 +37,8 @@
                         <div class="hot-topics sticky">
                             <h3>热门话题</h3>
                             <div class="topic-list">
-                                <div v-for="topic in hotTopics" :key="topic.id" class="topic-item">
+                                <div v-for="topic in hotTopics" :key="topic.id" class="topic-item"
+                                    @click.prevent="handleServiceUnavailable">
                                     <span class="topic-rank">#{{ topic.rank }}</span>
                                     <div class="topic-info">
                                         <h4>{{ topic.title }}</h4>
@@ -82,7 +83,7 @@
                             <h3>活动公告</h3>
                             <div class="announcement-list">
                                 <div v-for="announcement in announcements" :key="announcement.id"
-                                    class="announcement-item">
+                                    class="announcement-item" @click.prevent="handleServiceUnavailable">
                                     <div class="announcement-badge" :class="announcement.type">
                                         {{ announcement.type === 'activity' ? '活动' : '公告' }}
                                     </div>
@@ -105,6 +106,7 @@
 
 <script>
 import { debounce } from 'lodash';
+import { ElMessage } from 'element-plus';
 import axios from 'axios';
 import PostCard from '@/components/discussion/PostCard.vue';
 import CreatePostModal from '@/components/discussion/CreatePostModal.vue';
@@ -224,7 +226,10 @@ export default {
             if (bottomDistance <= 100) {
                 this.fetchPosts();
             }
-        }
+        },
+        handleServiceUnavailable() {
+            ElMessage.warning("服务暂未开放");
+        },
     },
     async mounted() {
         await this.fetchCategories();
