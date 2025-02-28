@@ -122,23 +122,10 @@ export default {
         Siderbar,
         Comment
     },
-    watch: {
-        '$route.query': {
-            handler: async function (newQuery) {
-                await clearVideoPlayer(); // 清理旧的视频播放器
-                this.isLoading = true; // 显示加载动画
-                await this.fetchUserProgress();
-                this.loadSavedProgress();
-                await VideoPlayer(); // 重新初始化视频，放在loadSavedProgress后面，因为loadSavedProgress是监听DOM变化
-                // clearVideoPlayerOLD() //存在历史遗留问题 当快速点击多集时，会残留多个视频播放器
-            },
-            deep: true // 深度监听对象的变化
-        }
-    },
     methods: {
         async changeEpisode(episode) {
             if (episode === this.currentEpisode) return; // 如果是同一集则不处理
-            this.$router.push(`/moviesDetail?videoId=${this.videoInfo.video_id}&episode=${episode}`);
+            window.location.href = `/moviesDetail?videoId=${this.videoInfo.video_id}&episode=${episode}`;
         },
 
         async fetchVideoInfo() {
