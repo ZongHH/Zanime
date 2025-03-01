@@ -96,29 +96,30 @@ func (c *CommentConsumer) persistComment(ctx context.Context, msg []byte) error 
 	}
 
 	if postComment.Level == 2 && postComment.ToUserID != nil {
-		user, err := c.userRepository.GetUserByID(ctx, postComment.UserID)
-		if err != nil {
-			return fmt.Errorf("获取用户信息失败: %v", err)
-		}
-
 		// 在事务中更新回复数量
 		err = c.postCommentRepository.UpdateReplyCountTx(ctx, tx, *postComment.RootID, 1)
 		if err != nil {
 			return fmt.Errorf("更新回复数量失败: %v", err)
 		}
 
-		// 发送websocket消息
-		replyComment := &CommentMessage{
-			MsgType:      "WS_MESSAGE",
-			SendUserName: user.Username,
-			Content:      postComment.Content,
+		// 在事务中创建用户通知
+		notification := &entity.UserNotification{
+			UserID:           *postComment.ToUserID,
+			FromUserID:       postComment.UserID,
+			NotificationType: 2,
+			Content:          postComment.Content,
+			PostID:           &postComment.PostID,
+			CommentID:        &postComment.CommentID,
 		}
-		replyCommentJson, err := json.Marshal(replyComment)
+		err = c.userRepository.CreateUserNotification(ctx, tx, notification)
 		if err != nil {
-			return fmt.Errorf("序列化回复评论失败: %v", err)
+			return fmt.Errorf("创建用户通知失败: %v", err)
 		}
-		toUserID := strconv.Itoa(*postComment.ToUserID)
-		_ = c.websocketManager.SendMessage(toUserID, replyCommentJson)
+
+		err = c.sendNotification(ctx, notification)
+		if err != nil {
+			return fmt.Errorf("发送通知失败: %v", err)
+		}
 	}
 
 	err = c.postCommentRepository.SetCommentVirtualID(ctx, postComment.UserID, virtualID, postComment.CommentID)
@@ -182,6 +183,31 @@ func (c *CommentConsumer) updateCommentLike(ctx context.Context, msg []byte) err
 		return fmt.Errorf("更新点赞数量失败: %v", err)
 	}
 
+	if commentLike.Status == 1 {
+		toUserID, err := c.postCommentRepository.GetCommentUserIDByCommentID(ctx, tx, commentLike.CommentID)
+		if err != nil {
+			return fmt.Errorf("获取评论目标用户ID失败: %v", err)
+		}
+
+		notification := &entity.UserNotification{
+			UserID:           toUserID,
+			FromUserID:       commentLike.UserID,
+			NotificationType: 1,
+			Content:          "点赞了你的评论",
+			CommentID:        &commentLike.CommentID,
+		}
+
+		err = c.userRepository.CreateUserNotification(ctx, tx, notification)
+		if err != nil {
+			return fmt.Errorf("创建用户通知失败: %v", err)
+		}
+
+		err = c.sendNotification(ctx, notification)
+		if err != nil {
+			return fmt.Errorf("发送通知失败: %v", err)
+		}
+	}
+
 	// 提交事务
 	err = tx.Commit()
 	if err != nil {
@@ -190,6 +216,46 @@ func (c *CommentConsumer) updateCommentLike(ctx context.Context, msg []byte) err
 	committed = true
 
 	return nil
+}
+
+func (c *CommentConsumer) sendNotification(ctx context.Context, notification *entity.UserNotification) error {
+	user, err := c.userRepository.GetUserByID(ctx, notification.FromUserID)
+	if err != nil {
+		return fmt.Errorf("获取对方用户信息失败: %v", err)
+	}
+
+	notificationMsg := &NotificationMessage{
+		SendUserName: user.Username,
+		Content:      notification.Content,
+	}
+
+	switch notification.NotificationType {
+	case 1:
+		notificationMsg.MsgType = "WS_COMMENT_LIKE"
+		notificationMsg.Title = user.Username + "点赞了你的评论"
+	case 2:
+		notificationMsg.MsgType = "WS_COMMENT_REPLY"
+		notificationMsg.Title = user.Username + "回复了你的评论"
+	case 3:
+		notificationMsg.MsgType = "WS_POST_FAVORITE"
+		notificationMsg.Title = user.Username + "收藏了你的帖子"
+	case 4:
+		notificationMsg.MsgType = "WS_POST_LIKE"
+		notificationMsg.Title = user.Username + "点赞了你的帖子"
+	case 5:
+		notificationMsg.MsgType = "WS_FOLLOW"
+		notificationMsg.Title = user.Username + "关注了你"
+	case 6:
+		notificationMsg.MsgType = "WS_SYSTEM"
+		notificationMsg.Title = "系统消息"
+	}
+
+	notificationMsgJson, err := json.Marshal(notificationMsg)
+	if err != nil {
+		return fmt.Errorf("序列化通知消息失败: %v", err)
+	}
+
+	return c.websocketManager.SendMessage(strconv.Itoa(notification.UserID), notificationMsgJson)
 }
 
 // Start 启动评论消费者

@@ -230,3 +230,118 @@ func (r *UserRepositoryImpl) UpdateUserAvatar(ctx context.Context, userID int, a
 
 	return nil
 }
+
+// GetUserNotifications 获取用户通知
+// 参数:
+// - ctx: 上下文
+// - userID: 用户ID
+// - notificationType: 通知类型
+// - page: 页码
+// - pageSize: 每页数量
+// 返回:
+// - *[]entity.UserNotification: 用户通知列表
+// - error: 错误信息
+func (r *UserRepositoryImpl) GetUserNotifications(ctx context.Context, userID int, notificationType int8, page int, pageSize int) (*[]entity.UserNotification, error) {
+	offset := (page - 1) * pageSize
+
+	var query string
+	var args []interface{}
+
+	if notificationType == 0 {
+		// 如果通知类型为0，不筛选通知类型
+		query = `
+			SELECT *
+			FROM user_notifications 
+			WHERE user_id = ? 
+			ORDER BY created_at DESC 
+			LIMIT ? OFFSET ?
+			`
+		args = []interface{}{userID, pageSize, offset}
+	} else {
+		// 否则按通知类型筛选
+		query = `
+			SELECT *
+			FROM user_notifications 
+			WHERE user_id = ? AND notification_type = ? 
+			ORDER BY created_at DESC 
+			LIMIT ? OFFSET ?
+			`
+		args = []interface{}{userID, notificationType, pageSize, offset}
+	}
+
+	rows, err := r.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	notifications := []entity.UserNotification{}
+	for rows.Next() {
+		notification := entity.UserNotification{}
+		err := rows.Scan(
+			&notification.NotificationID,
+			&notification.UserID,
+			&notification.FromUserID,
+			&notification.PostID,
+			&notification.CommentID,
+			&notification.NotificationType,
+			&notification.Content,
+			&notification.IsRead,
+			&notification.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		notifications = append(notifications, notification)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return &notifications, nil
+}
+
+// CreateUserNotification 创建用户通知
+// 参数:
+// - ctx: 上下文
+// - tx: 事务
+// - notification: 用户通知
+// 返回:
+// - error: 错误信息
+func (r *UserRepositoryImpl) CreateUserNotification(ctx context.Context, tx *sql.Tx, notification *entity.UserNotification) error {
+	// 动态构建字段列表和占位符
+	fields := []string{"user_id", "from_user_id", "notification_type", "content"}
+	placeholders := []string{"?", "?", "?", "?"}
+	args := []interface{}{notification.UserID, notification.FromUserID, notification.NotificationType, notification.Content}
+
+	// 根据是否有效ID添加post_id和comment_id
+	if notification.PostID != nil {
+		fields = append(fields, "post_id")
+		placeholders = append(placeholders, "?")
+		args = append(args, notification.PostID)
+	}
+	if notification.CommentID != nil {
+		fields = append(fields, "comment_id")
+		placeholders = append(placeholders, "?")
+		args = append(args, notification.CommentID)
+	}
+
+	query := fmt.Sprintf(`
+		INSERT INTO user_notifications (
+			%s
+		) VALUES (%s)
+	`, strings.Join(fields, ", "), strings.Join(placeholders, ", "))
+
+	_, err := tx.ExecContext(
+		ctx,
+		query,
+		args...,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

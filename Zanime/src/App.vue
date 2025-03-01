@@ -1,10 +1,11 @@
 <template>
   <router-view />
-  <PushNotification v-if="showPush" :title="title" :message="message" :duration="5000" @closed="showPush = false" />
+  <PushNotification v-if="showPush" :type="notificationType" :title="title" :message="message"
+    @closed="showPush = false" />
 </template>
 
 <script>
-import PushNotification from './components/PushNotification.vue';
+import PushNotification from './components/general/PushNotification.vue';
 
 /**
  * WebSocket 连接管理类
@@ -117,6 +118,7 @@ export default {
       showPush: false,
       title: "",
       message: "",
+      notificationType: "default",
       wsManager: null
     };
   },
@@ -125,15 +127,40 @@ export default {
   },
   methods: {
     handleWebSocketMessage(data) {
-      if (data.type === 'WS_MESSAGE') {
-        this.title = `${data.send_username} 回复你: `;
+      // 根据不同消息类型设置不同的通知类型
+      let notificationType = 'default';
+
+      if (data.type === 'WS_COMMENT_REPLY') {
+        this.title = data.title;
         this.message = data.content;
-        this.showPush = true;
+        notificationType = 'reply'; // 回复通知
       } else if (data.type === 'WS_COMMENT_LIKE') {
-        this.title = `${data.user_name} 点赞了你的评论`;
-        this.message = `"${data.post_title}"`;
-        this.showPush = true;
+        this.title = data.title;
+        this.message = data.content;
+        notificationType = 'like'; // 点赞通知
+      } else if (data.type === 'WS_POST_LIKE') {
+        this.title = data.title;
+        this.message = data.content;
+        notificationType = 'like'; // 点赞通知
+      } else if (data.type === 'WS_POST_FAVORITE') {
+        this.title = data.title;
+        this.message = data.content;
+        notificationType = 'favorite'; // 收藏通知
+      } else if (data.type === 'WS_FOLLOW') {
+        this.title = data.title;
+        this.message = data.content;
+        notificationType = 'follow'; // 关注通知
+      } else if (data.type === 'WS_SYSTEM') {
+        this.title = data.title;
+        this.message = data.content;
+        notificationType = 'system'; // 系统通知
       }
+
+      // 显示通知
+      this.$nextTick(() => {
+        this.notificationType = notificationType;
+        this.showPush = true;
+      });
     }
   },
   mounted() {

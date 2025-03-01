@@ -119,3 +119,27 @@ type UploadAvatarRequest struct {
 	UserID int                   `form:"user_id"` // 用户ID
 	Avatar *multipart.FileHeader `form:"avatar"`  // 头像文件,使用multipart/form-data格式上传
 }
+
+// UserNotificationRequest 获取用户通知的请求参数
+type UserNotificationRequest struct {
+	UserID   int  `form:"user_id"`                                    // 用户ID
+	Type     int8 `form:"type" binding:"oneof=0 1 2 3 4 5"`           // 通知类型,限制有效值
+	Page     int  `form:"page" binding:"required,min=1"`              // 页码,必须大于等于1
+	PageSize int  `form:"page_size" binding:"omitempty,min=1,max=50"` // 每页数量,限制范围1-50
+}
+
+// UserNotificationResponse 获取用户通知的响应
+type UserNotificationResponse struct {
+	Code          int                `json:"code"`          // 响应状态码,200表示成功
+	Notifications []UserNotification `json:"notifications"` // 通知数据列表
+}
+
+// UserNotification 用户通知数据结构
+type UserNotification struct {
+	ID       int64  `json:"id"`       // 通知ID
+	Avatar   string `json:"avatar"`   // 头像URL
+	Username string `json:"username"` // 用户名
+	Message  string `json:"message"`  // 通知消息内容
+	Type     int8   `json:"type"`     // 通知类型
+	Time     string `json:"time"`     // 通知时间
+}

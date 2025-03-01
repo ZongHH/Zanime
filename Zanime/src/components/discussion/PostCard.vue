@@ -73,6 +73,11 @@ export default {
         }
     },
     methods: {
+        /**
+         * 格式化时间为相对时间
+         * @param {string|Date} time - 需要格式化的时间
+         * @returns {string} - 格式化后的相对时间字符串（如：5分钟前，2小时前）
+         */
         formatTime(time) {
             const now = new Date();
             const postTime = new Date(time);
@@ -86,21 +91,36 @@ export default {
             if (days < 30) return `${days}天前`;
             return postTime.toLocaleDateString();
         },
+
+        /**
+         * 导航到帖子详情页
+         * 当用户点击帖子时触发，使用Vue Router导航到对应的帖子详情页
+         */
         navigateToPost() {
             this.$router.push(`/post/${this.post.id}`);
         },
+
+        /**
+         * 切换帖子点赞状态
+         * 如果用户未登录，会重定向到登录页
+         * 发送API请求更新点赞状态，并在本地更新点赞计数和状态
+         */
         async toggleLike() {
+            // 检查用户是否已登录
             if (!localStorage.getItem('user_id')) {
                 this.$router.push('/login');
                 return;
             }
             try {
+                // 发送点赞/取消点赞请求
                 const response = await axios.post(`/api/post/like`, {
                     post_id: this.post.id,
-                    status: this.post.is_liked ? 0 : 1
+                    status: this.post.is_liked ? 0 : 1  // 0表示取消点赞，1表示点赞
                 });
                 if (response.data.code === 200) {
+                    // 更新本地点赞状态
                     this.post.is_liked = !this.post.is_liked;
+                    // 更新点赞数量
                     this.post.like_count += this.post.is_liked ? 1 : -1;
                 } else {
                     console.error('点赞失败:', response.data.message);
@@ -109,17 +129,26 @@ export default {
                 console.error('点赞失败:', error);
             }
         },
+
+        /**
+         * 切换帖子收藏状态
+         * 如果用户未登录，会重定向到登录页
+         * 发送API请求更新收藏状态，并在本地更新收藏状态
+         */
         async toggleFavorite() {
+            // 检查用户是否已登录
             if (!localStorage.getItem('user_id')) {
                 this.$router.push('/login');
                 return;
             }
             try {
+                // 发送收藏/取消收藏请求
                 const response = await axios.post(`/api/post/favorite`, {
                     post_id: this.post.id,
-                    status: this.post.is_favorited ? 0 : 1
+                    status: this.post.is_favorited ? 0 : 1  // 0表示取消收藏，1表示收藏
                 });
                 if (response.data.code === 200) {
+                    // 更新本地收藏状态
                     this.post.is_favorited = !this.post.is_favorited;
                 } else {
                     console.error('收藏失败:', response.data.message);
@@ -128,13 +157,66 @@ export default {
                 console.error('收藏失败:', error);
             }
         },
+
+        /**
+         * 分享帖子
+         * 复制帖子链接到剪贴板，并显示成功提示
+         * 优先使用现代Clipboard API，如不可用则使用备用方法
+         */
         sharePost() {
+            // 构建完整的帖子URL
             const postUrl = `${window.location.origin}/post/${this.post.id}`;
-            navigator.clipboard.writeText(postUrl).then(() => {
-                ElMessage.success('复制链接成功，快分享给好友吧！');
-            }).catch(err => {
-                ElMessage.error('复制链接失败:', err);
-            });
+
+            // 检查剪贴板API是否可用
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(postUrl).then(() => {
+                    ElMessage.success('复制链接成功，快分享给好友吧！');
+                }).catch(err => {
+                    console.error('复制链接失败:', err);
+                    this.fallbackCopyToClipboard(postUrl);
+                });
+            } else {
+                // 使用备用复制方法
+                this.fallbackCopyToClipboard(postUrl);
+            }
+        },
+
+        /**
+         * 备用复制到剪贴板方法
+         * 当现代Clipboard API不可用时使用
+         * 创建临时文本区域并使用document.execCommand进行复制
+         * 
+         * @param {string} text - 要复制到剪贴板的文本
+         */
+        fallbackCopyToClipboard(text) {
+            try {
+                // 创建临时文本区域元素
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                // 设置样式以防止滚动和视觉干扰
+                textArea.style.top = '0';
+                textArea.style.left = '0';
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
+                textArea.style.pointerEvents = 'none';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+
+                // 执行复制命令
+                const successful = document.execCommand('copy');
+                // 移除临时元素
+                document.body.removeChild(textArea);
+
+                if (successful) {
+                    ElMessage.success('复制链接成功，快分享给好友吧！');
+                } else {
+                    ElMessage.warning('无法自动复制，请手动复制链接分享');
+                }
+            } catch (err) {
+                console.error('备用复制方法失败:', err);
+                ElMessage.warning('无法自动复制，请手动复制链接分享');
+            }
         }
     }
 };

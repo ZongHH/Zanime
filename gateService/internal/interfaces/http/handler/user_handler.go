@@ -164,3 +164,22 @@ func (h *UserHandler) UploadAvatar(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response)
 }
+
+func (h *UserHandler) GetUserNotifications(c *gin.Context) {
+	var request dto.UserNotificationRequest
+	if err := c.ShouldBind(&request); err != nil {
+		c.Error(errors.NewAppError(errors.ErrParamInvalid.Code, err.Error(), err))
+		return
+	}
+
+	request.UserID = c.MustGet("UserInfo").(*auth.CustomClaims).UserInfo.UserID
+	request.PageSize = 10
+
+	response, err := h.userService.GetUserNotifications(c.Request.Context(), &request)
+	if err != nil {
+		c.Error(errors.NewAppError(errors.ErrInternalError.Code, err.Error(), err))
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+}

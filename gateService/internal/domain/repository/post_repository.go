@@ -513,4 +513,14 @@ type PostCommentRepository interface {
 	// - int: 用户发布的评论数量
 	// - error: 获取过程中的错误信息
 	GetUserCommentCount(ctx context.Context, userID int) (int, error)
+
+	// GetCommentUserIDByCommentID 获取评论目标用户ID
+	// 参数:
+	// - ctx: 上下文
+	// - tx: 数据库事务
+	// - commentID: 评论ID
+	// 返回:
+	// - int: 目标用户ID
+	// - error: 获取过程中的错误信息
+	GetCommentUserIDByCommentID(ctx context.Context, tx *sql.Tx, commentID int64) (int, error)
 }

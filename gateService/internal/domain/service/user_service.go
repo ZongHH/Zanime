@@ -87,4 +87,13 @@ type UserService interface {
 	// - *dto.UploadAvatarResponse: 上传用户头像响应数据,包含头像文件的访问URL
 	// - error: 上传用户头像过程中的错误信息
 	UploadAvatar(ctx context.Context, user *dto.UploadAvatarRequest) (*dto.UploadAvatarResponse, error)
+
+	// GetUserNotifications 获取用户通知
+	// 参数:
+	// - ctx: 上下文信息
+	// - user: 获取用户通知请求参数,包含用户ID和通知类型
+	// 返回:
+	// - *dto.UserNotificationResponse: 获取用户通知响应数据,包含通知列表
+	// - error: 获取用户通知过程中的错误信息
+	GetUserNotifications(ctx context.Context, user *dto.UserNotificationRequest) (*dto.UserNotificationResponse, error)
 }

@@ -426,3 +426,29 @@ func (p *PostCommentRepositoryImpl) GetUserCommentCount(ctx context.Context, use
 	}
 	return count, nil
 }
+
+// GetCommentUserIDByCommentID 获取评论目标用户ID
+// 参数:
+// - ctx: 上下文
+// - tx: 数据库事务
+// - commentID: 评论ID
+// 返回:
+// - int: 目标用户ID
+// - error: 获取过程中的错误信息
+func (p *PostCommentRepositoryImpl) GetCommentUserIDByCommentID(ctx context.Context, tx *sql.Tx, commentID int64) (int, error) {
+	query := "SELECT user_id FROM post_comments WHERE comment_id = ? AND status = 1"
+	var userID int
+	var err error
+
+	if tx != nil {
+		err = tx.QueryRowContext(ctx, query, commentID).Scan(&userID)
+	} else {
+		err = p.db.QueryRowContext(ctx, query, commentID).Scan(&userID)
+	}
+
+	if err != nil {
+		return 0, fmt.Errorf("获取评论用户ID失败: %v", err)
+	}
+
+	return userID, nil
+}
