@@ -66,13 +66,6 @@
                     <i class="fas fa-comments"></i>
                     <p>暂无{{ getFilterText(activeFilter) }}</p>
                 </div>
-
-                <!-- 加载出错提示 -->
-                <div v-if="error" class="error-message">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <p>{{ error }}</p>
-                    <button @click="fetchNotifications" class="retry-button">重试</button>
-                </div>
             </div>
         </div>
     </transition>
@@ -95,7 +88,6 @@ export default {
             activeFilter: 0, // 0: 全部, 1-6: 对应通知类型
             showFilterDropdown: false,
             loading: false,
-            error: null,
             page: 1,
             hasMore: true,
             scrollDebounceTimer: null
@@ -172,7 +164,6 @@ export default {
                 case 3: return '收藏了你的帖子';
                 case 4: return '点赞了你的帖子';
                 case 5: return '关注了你';
-                case 6: return '回关了你';
                 default: return '';
             }
         },
@@ -189,8 +180,7 @@ export default {
                 case 2: return 'fas fa-comment';    // 回复图标
                 case 3: return 'fas fa-bookmark';   // 收藏图标
                 case 4: return 'fas fa-heart';      // 点赞帖子图标
-                case 5:
-                case 6: return 'fas fa-user-plus';  // 关注和回关图标
+                case 5: return 'fas fa-user-plus';  // 关注和回关图标
                 default: return '';
             }
         },
@@ -209,7 +199,6 @@ export default {
                 case 3: return '收藏';
                 case 4: return '点赞帖子';
                 case 5: return '关注';
-                case 6: return '回关';
                 default: return '全部消息';
             }
         },
@@ -247,7 +236,6 @@ export default {
             if (this.loading || !this.hasMore) return;
 
             this.loading = true;
-            this.error = null;
 
             try {
                 // 构建请求参数
@@ -278,8 +266,7 @@ export default {
                     throw new Error(response.data.message);
                 }
             } catch (error) {
-                this.error = '获取通知失败，请稍后重试';
-                ElMessage.error(this.error);
+                ElMessage.error(`获取通知失败，请稍后重试: ${error.message}`);
             } finally {
                 this.loading = false;
             }
@@ -354,12 +341,6 @@ export default {
             }
         },
     },
-    mounted() {
-        // 当组件挂载且通知面板是打开状态时，获取通知
-        if (this.showNotifications) {
-            this.fetchNotifications(); // 使用实际API获取数据
-        }
-    }
 };
 </script>
 
@@ -367,7 +348,7 @@ export default {
 .notification-dropdown {
     position: absolute;
     top: 60px;
-    right: 0;
+    right: -110px;
     width: 385px;
     background: #0a0a0a;
     backdrop-filter: blur(10px);
@@ -377,6 +358,7 @@ export default {
     z-index: 1000;
     overflow: hidden;
     transform-origin: top right;
+    min-height: 300px;
 }
 
 .notify-header {
@@ -414,6 +396,7 @@ export default {
 .filter-dropdown {
     position: relative;
     cursor: pointer;
+    z-index: 1100;
 }
 
 .selected-filter {
@@ -448,8 +431,8 @@ export default {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.05);
     margin-top: 10px;
-    z-index: 10;
-    overflow: hidden;
+    z-index: 1100;
+    overflow: visible;
 }
 
 /* 下拉列表滑动动画 */
@@ -480,6 +463,7 @@ export default {
 
 .notify-body {
     max-height: 600px;
+    min-height: 300px;
     overflow-y: auto;
     padding: 5px;
     background: #0a0a0a;

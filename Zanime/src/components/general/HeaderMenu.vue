@@ -73,6 +73,7 @@
                                 </defs>
                             </svg>
                         </button>
+                        <span class="tooltip-text search-tooltip">搜索</span>
                     </form>
                     <i class="fal fa-times close-icon"></i>
                     <!-- 添加搜索结果下拉框 -->
@@ -98,13 +99,14 @@
                                 d="M16.0547 10.268V8.39844C16.0547 5.67102 14.2417 3.35934 11.7578 2.6043V1.75781C11.7578 0.788555 10.9692 0 9.99998 0C9.03073 0 8.24217 0.788555 8.24217 1.75781V2.6043C5.75819 3.35934 3.9453 5.67098 3.9453 8.39844V10.268C3.9453 12.6638 3.03209 14.9355 1.37393 16.6648C1.21143 16.8342 1.16577 17.0843 1.25788 17.3002C1.34998 17.5161 1.56209 17.6562 1.79686 17.6562H7.12924C7.40143 18.9919 8.58518 20 9.99998 20C11.4148 20 12.5985 18.9919 12.8707 17.6562H18.2031C18.4379 17.6562 18.6499 17.5161 18.7421 17.3002C18.8342 17.0843 18.7885 16.8342 18.626 16.6648C16.9679 14.9355 16.0547 12.6638 16.0547 10.268ZM9.41405 1.75781C9.41405 1.43473 9.6769 1.17188 9.99998 1.17188C10.3231 1.17188 10.5859 1.43473 10.5859 1.75781V2.37219C10.3931 2.35359 10.1976 2.34375 9.99998 2.34375C9.80233 2.34375 9.6069 2.35359 9.41405 2.37219V1.75781ZM9.99998 18.8281C9.23612 18.8281 8.58483 18.3382 8.34295 17.6562H11.657C11.4151 18.3382 10.7639 18.8281 9.99998 18.8281ZM3.05975 16.4844C4.39416 14.6956 5.11717 12.5309 5.11717 10.268V8.39844C5.11717 5.70605 7.3076 3.51562 9.99998 3.51562C12.6924 3.51562 14.8828 5.70605 14.8828 8.39844V10.268C14.8828 12.5309 15.6058 14.6956 16.9403 16.4844H3.05975Z"
                                 fill="#FAFAFA"></path>
                         </svg>
+                        <span class="tooltip-text notification-tooltip">通知</span>
                     </a>
                     <Notify :showNotifications="showNotifications" />
                 </div>
                 <div class="dropdown-container">
                     <details class="dropdown right">
                         <summary class="avatar">
-                            <img src="@/static/picture/Ellipse-1.png" alt="logo">
+                            <img :src="avatarURL" alt="logo">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewbox="0 0 16 16"
                                 fill="none">
                                 <path d="M0 4.01306L8.00002 11.987L16 4.01306H0Z" fill="#FAFAFA"></path>
@@ -167,6 +169,11 @@ export default {
             searchTimeout: null,
             activeMenuItem: '', // 默认不激活
         };
+    },
+    computed: {
+        avatarURL() {
+            return localStorage.getItem('avatar_url');
+        }
     },
     methods: {
         /**
@@ -512,5 +519,58 @@ export default {
     background: transparent;
     color: rgba(255, 255, 255, 0.5);
     cursor: not-allowed;
+}
+
+/* 添加提示词样式 */
+.input-box form,
+.icon a {
+    position: relative;
+}
+
+.tooltip-text {
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(26, 26, 26, 0.9);
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 1001;
+}
+
+.search-tooltip {
+    bottom: -50px;
+}
+
+.notification-tooltip {
+    bottom: -40px;
+}
+
+.input-box form:hover .tooltip-text,
+.icon a:hover .tooltip-text {
+    opacity: 1;
+}
+
+.tooltip-text::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -4px;
+    border-width: 4px;
+    border-style: solid;
+    border-color: transparent transparent rgba(26, 26, 26, 0.9) transparent;
+}
+
+@media (max-width: 768px) {
+    .tooltip-text {
+        display: none;
+    }
 }
 </style>

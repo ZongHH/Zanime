@@ -103,7 +103,7 @@ export default {
 
           // 存储用户信息到 localStorage
           const userData = response.data.user_info;
-          localStorage.setItem('user_name', userData.user_name);
+          localStorage.setItem('user_name', userData.username);
           localStorage.setItem('user_id', userData.user_id);
           localStorage.setItem('email', userData.email);
           localStorage.setItem('gender', userData.gender);

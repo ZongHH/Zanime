@@ -24,7 +24,7 @@ type UserNotification struct {
 	FromUserID       int    `json:"from_user_id"`      // 发送通知的用户ID
 	PostID           *int64 `json:"post_id"`           // 相关的帖子ID,可为空
 	CommentID        *int64 `json:"comment_id"`        // 相关的评论ID,可为空
-	NotificationType int8   `json:"notification_type"` // 通知类型: 1-点赞评论, 2-回复评论, 3-收藏帖子, 4-点赞帖子, 5-关注, 6-回关
+	NotificationType int8   `json:"notification_type"` // 通知类型: 1-点赞评论, 2-回复评论, 3-收藏帖子, 4-点赞帖子, 5-关注
 	Content          string `json:"content"`           // 通知内容,可为空
 	IsRead           bool   `json:"is_read"`           // 是否已读,默认为0(未读)
 	CreatedAt        string `json:"created_at"`        // 创建时间,自动生成

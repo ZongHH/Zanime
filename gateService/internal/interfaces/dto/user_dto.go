@@ -122,10 +122,10 @@ type UploadAvatarRequest struct {
 
 // UserNotificationRequest 获取用户通知的请求参数
 type UserNotificationRequest struct {
-	UserID   int  `form:"user_id"`                                     // 用户ID
-	Type     int8 `form:"type" binding:"required,oneof=0 1 2 3 4 5 6"` // 通知类型,限制有效值
-	Page     int  `form:"page" binding:"required,min=1"`               // 页码,必须大于等于1
-	PageSize int  `form:"page_size" binding:"omitempty,min=1,max=50"`  // 每页数量,限制范围1-50
+	UserID   int  `form:"user_id"`                                    // 用户ID
+	Type     int8 `form:"type" binding:"oneof=0 1 2 3 4 5"`           // 通知类型,限制有效值
+	Page     int  `form:"page" binding:"required,min=1"`              // 页码,必须大于等于1
+	PageSize int  `form:"page_size" binding:"omitempty,min=1,max=50"` // 每页数量,限制范围1-50
 }
 
 // UserNotificationResponse 获取用户通知的响应
