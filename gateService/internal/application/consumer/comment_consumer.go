@@ -107,6 +107,20 @@ func (c *CommentConsumer) persistComment(ctx context.Context, msg []byte) error 
 			return fmt.Errorf("更新回复数量失败: %v", err)
 		}
 
+		// 在事务中创建用户通知
+		notification := &entity.UserNotification{
+			UserID:           *postComment.ToUserID,
+			FromUserID:       postComment.UserID,
+			NotificationType: 2,
+			Content:          postComment.Content,
+			PostID:           &postComment.PostID,
+			CommentID:        &postComment.CommentID,
+		}
+		err = c.userRepository.CreateUserNotification(ctx, tx, notification)
+		if err != nil {
+			return fmt.Errorf("创建用户通知失败: %v", err)
+		}
+
 		// 发送websocket消息
 		replyComment := &CommentMessage{
 			MsgType:      "WS_MESSAGE",

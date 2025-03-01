@@ -489,14 +489,76 @@ export default {
                 console.error('获取用户信息失败:', error);
             }
         },
-
+        /**
+         * 分享帖子
+         * 生成当前帖子的URL并复制到剪贴板，优先使用现代Clipboard API，
+         * 如不可用则回退到传统的document.execCommand方法
+         */
         sharePost() {
+            // 构建完整的帖子URL，包含域名和帖子ID
             const postUrl = `${window.location.origin}/post/${this.post.id}`;
-            navigator.clipboard.writeText(postUrl).then(() => {
-                ElMessage.success('复制链接成功，快分享给好友吧！');
-            }).catch(err => {
-                ElMessage.error('复制链接失败:', err);
-            });
+
+            // 检查现代剪贴板API是否可用
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                // 使用现代Clipboard API复制文本
+                navigator.clipboard.writeText(postUrl).then(() => {
+                    // 复制成功时显示成功提示
+                    ElMessage.success('复制链接成功，快分享给好友吧！');
+                }).catch(err => {
+                    // 复制失败时记录错误并尝试使用备用方法
+                    console.error('复制链接失败:', err);
+                    this.fallbackCopyToClipboard(postUrl);
+                });
+            } else {
+                // 浏览器不支持现代Clipboard API时使用备用复制方法
+                this.fallbackCopyToClipboard(postUrl);
+            }
+        },
+
+        /**
+         * 备用复制到剪贴板方法
+         * 使用传统的document.execCommand('copy')方法实现复制功能
+         * 适用于不支持现代Clipboard API的浏览器
+         * 
+         * @param {string} text - 需要复制到剪贴板的文本
+         */
+        fallbackCopyToClipboard(text) {
+            try {
+                // 创建一个临时textarea元素用于选择和复制文本
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+
+                // 设置样式使textarea不可见且不影响页面布局
+                textArea.style.top = '0';
+                textArea.style.left = '0';
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
+                textArea.style.pointerEvents = 'none';
+
+                // 将textarea添加到DOM中
+                document.body.appendChild(textArea);
+
+                // 选中textarea中的文本
+                textArea.focus();
+                textArea.select();
+
+                // 执行复制命令
+                const successful = document.execCommand('copy');
+
+                // 操作完成后从DOM中移除textarea
+                document.body.removeChild(textArea);
+
+                // 根据复制结果显示相应提示
+                if (successful) {
+                    ElMessage.success('复制链接成功，快分享给好友吧！');
+                } else {
+                    ElMessage.warning('无法自动复制，请手动复制链接分享');
+                }
+            } catch (err) {
+                // 捕获并记录可能出现的错误
+                console.error('备用复制方法失败:', err);
+                ElMessage.warning('无法自动复制，请手动复制链接分享');
+            }
         }
     },
     async mounted() {

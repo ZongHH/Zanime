@@ -81,6 +81,7 @@ func (c *Controller) setupAPIRoutes() {
 		apiGroup.POST("/user/update", c.userHandler.UpdateUserProfile)                 // 更新用户个人信息（参数：用户ID、用户名、邮箱、性别、个性签名、头像URL）
 		apiGroup.GET("/user/stats", c.userHandler.GetUserStats)                        // 获取用户个人主页计数信息（参数：用户ID）
 		apiGroup.POST("/user/upload-avatar", c.userHandler.UploadAvatar)               // 上传用户头像（参数：用户ID、头像文件）
+		apiGroup.GET("/user/notifications", c.userHandler.GetUserNotifications)        // 获取用户通知（参数：用户ID、通知类型、页码、每页数量）
 	}
 
 	// 创建连接路由组，所有路由需要JWT认证

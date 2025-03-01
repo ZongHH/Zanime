@@ -336,3 +336,37 @@ func (s *UserServiceImpl) UploadAvatar(ctx context.Context, user *dto.UploadAvat
 		URL:  avatarURL,
 	}, nil
 }
+
+func (s *UserServiceImpl) GetUserNotifications(ctx context.Context, user *dto.UserNotificationRequest) (*dto.UserNotificationResponse, error) {
+	notifications, err := s.userRepository.GetUserNotifications(ctx, user.UserID, user.Type, user.Page, user.PageSize)
+	if err != nil {
+		return nil, fmt.Errorf("获取用户通知失败: %v", err)
+	}
+
+	fromUserIDs := make([]int, 0, len(*notifications))
+	for _, notification := range *notifications {
+		fromUserIDs = append(fromUserIDs, notification.FromUserID)
+	}
+
+	fromUserInfos, err := s.userRepository.GetUsersByIDs(ctx, &fromUserIDs)
+	if err != nil {
+		return nil, fmt.Errorf("获取对方用户们信息失败: %v", err)
+	}
+
+	response := make([]dto.UserNotification, 0, len(*notifications))
+	for i, notification := range *notifications {
+		response = append(response, dto.UserNotification{
+			ID:       notification.NotificationID,
+			Avatar:   (*fromUserInfos)[i].AvatarURL,
+			Username: (*fromUserInfos)[i].Username,
+			Message:  notification.Content,
+			Type:     notification.NotificationType,
+			Time:     notification.CreatedAt,
+		})
+	}
+
+	return &dto.UserNotificationResponse{
+		Code:          200,
+		Notifications: response,
+	}, nil
+}

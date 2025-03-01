@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"gateService/internal/domain/entity"
 )
 
@@ -85,4 +86,25 @@ type UserRepository interface {
 	// 返回:
 	// - error: 错误信息
 	UpdateUserAvatar(ctx context.Context, userID int, avatarURL string) error
+
+	// CreateUserNotification 创建用户通知
+	// 参数:
+	// - ctx: 上下文
+	// - tx: 事务
+	// - notification: 用户通知
+	// 返回:
+	// - error: 错误信息
+	CreateUserNotification(ctx context.Context, tx *sql.Tx, notification *entity.UserNotification) error
+
+	// GetUserNotifications 获取用户通知
+	// 参数:
+	// - ctx: 上下文
+	// - userID: 用户ID
+	// - notificationType: 通知类型
+	// - page: 页码
+	// - pageSize: 每页数量
+	// 返回:
+	// - *[]entity.UserNotification: 用户通知列表
+	// - error: 错误信息
+	GetUserNotifications(ctx context.Context, userID int, notificationType int8, page int, pageSize int) (*[]entity.UserNotification, error)
 }

@@ -15,3 +15,17 @@ type UserInfo struct {
 	CreatedAt   string `json:"created_at"`    // 创建时间,自动生成
 	LastLoginAt string `json:"last_login_at"` // 最后登录时间,自动更新
 }
+
+// UserNotification 用户通知结构体
+// 对应数据库表 user_notifications
+type UserNotification struct {
+	NotificationID   int64  `json:"notification_id"`   // 通知ID,自增主键
+	UserID           int    `json:"user_id"`           // 接收通知的用户ID
+	FromUserID       int    `json:"from_user_id"`      // 发送通知的用户ID
+	PostID           *int64 `json:"post_id"`           // 相关的帖子ID,可为空
+	CommentID        *int64 `json:"comment_id"`        // 相关的评论ID,可为空
+	NotificationType int8   `json:"notification_type"` // 通知类型: 1-点赞评论, 2-回复评论, 3-收藏帖子, 4-点赞帖子, 5-关注, 6-回关
+	Content          string `json:"content"`           // 通知内容,可为空
+	IsRead           bool   `json:"is_read"`           // 是否已读,默认为0(未读)
+	CreatedAt        string `json:"created_at"`        // 创建时间,自动生成
+}

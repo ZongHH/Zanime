@@ -99,7 +99,7 @@
                                 fill="#FAFAFA"></path>
                         </svg>
                     </a>
-                    <Notify :showNotifications="showNotifications" :notifications="notifications" />
+                    <Notify :showNotifications="showNotifications" />
                 </div>
                 <div class="dropdown-container">
                     <details class="dropdown right">
@@ -151,7 +151,7 @@
 </template>
 
 <script>
-import Notify from '@/components/Notify.vue';
+import Notify from '@/components/general/Notify.vue';
 import Help from '@/components/general/Help.vue';
 import Logout from '@/static/js/general.js';
 import axios from 'axios';
@@ -161,11 +161,6 @@ export default {
         return {
             showNotifications: false,
             showHelp: false,
-            notifications: [
-                { id: 1, title: "新番更新！", message: "《鬼灭之刃》最新一集已上线，快来观看！", time: "2分钟前" },
-                { id: 2, title: "漫画更新", message: "《海贼王》新章节已发布，立即查看！", time: "15分钟前" },
-                { id: 3, title: "活动提醒", message: "下周是漫展最后一天，别错过哦！", time: "1小时前" },
-            ],
             searchQuery: '',
             searchResults: [],
             showDropdown: false,
@@ -174,63 +169,122 @@ export default {
         };
     },
     methods: {
+        /**
+         * 切换通知面板的显示状态
+         * 当用户点击通知图标时调用此方法
+         * 通过取反当前状态来实现显示/隐藏切换
+         */
         toggleNotifications() {
             this.showNotifications = !this.showNotifications;
         },
+
+        /**
+         * 显示帮助模态框
+         * 当用户点击帮助选项时调用此方法
+         * 将showHelp状态设置为true以显示帮助组件
+         */
         showHelpModal() {
             this.showHelp = true;
         },
+
+        /**
+         * 处理搜索输入事件
+         * 实现防抖功能，避免频繁API调用
+         * 当用户输入内容时，延迟300ms后才执行搜索
+         * 如果搜索框为空，则清空搜索结果
+         */
         handleSearchInput() {
-            // 防抖处理
+            // 防抖处理：清除之前的定时器
             clearTimeout(this.searchTimeout);
             if (this.searchQuery.trim()) {
+                // 设置新的定时器，延迟300ms执行搜索
                 this.searchTimeout = setTimeout(() => {
                     this.fetchSearchResults();
                 }, 300);
             } else {
+                // 搜索框为空时清空结果
                 this.searchResults = [];
             }
         },
 
+        /**
+         * 获取搜索结果
+         * 异步方法，通过API获取匹配的动画列表
+         * 成功时更新searchResults数组
+         * 失败时记录错误并清空结果
+         */
         async fetchSearchResults() {
             try {
+                // 发送GET请求到搜索API
                 const response = await axios.get(`/api/search?query=${this.searchQuery}`);
                 if (response.data.code === 200) {
+                    // 请求成功，更新搜索结果
                     this.searchResults = response.data.animes;
                 } else {
+                    // 服务器返回错误码
                     throw new Error(response.data.message)
                 }
             } catch (error) {
+                // 捕获并记录错误
                 console.error('搜索出错:', error);
                 this.searchResults = [];
             }
         },
 
+        /**
+         * 处理搜索结果点击事件
+         * 当用户点击某个搜索结果项时调用
+         * 跳转到对应的详情页面
+         * @param {Object} result - 包含视频信息的结果对象
+         */
         handleResultClick(result) {
-            // 跳转到详情页
+            // 使用vue-router导航到详情页，传递视频ID作为参数
             this.$router.push(`/moviesDetail?videoId=${result.video_id}`);
         },
 
+        /**
+         * 处理搜索表单提交
+         * 当用户提交搜索表单时调用
+         * 阻止默认表单提交行为，并跳转到搜索结果页
+         * @param {Event} e - 表单提交事件对象
+         */
         handleSearch(e) {
+            // 阻止表单默认提交行为
             e.preventDefault();
             // 处理搜索表单提交
             if (this.searchQuery.trim()) {
-                // this.fetchSearchResults();
+                // 注释掉的代码：this.fetchSearchResults();
+                // 跳转到动画详情页，将搜索词作为参数传递
                 this.$router.push(`/animeDetail?params=${encodeURIComponent(this.searchQuery.trim())}`);
             }
         },
 
+        /**
+         * 处理搜索框失焦事件
+         * 当搜索框失去焦点时，延迟关闭下拉框
+         * 延迟是为了确保点击事件能够被处理
+         */
         handleBlur() {
-            // 延迟关闭下拉框，以便能够处理点击事件
+            // 延迟200ms关闭下拉框，以便能够处理点击事件
             setTimeout(() => {
                 this.showDropdown = false;
             }, 200);
         },
 
+        /**
+         * 跳转到订单页面
+         * 当用户点击"我的订单"选项时调用
+         * 使用vue-router导航到订单页面
+         */
         JumpOrder() {
             this.$router.push("/orders")
         },
 
+        /**
+         * 跳转到个人中心页面
+         * 当用户点击个人中心选项时调用
+         * 使用vue-router导航到个人中心页面
+         */
         JumpPersonal() {
             this.$router.push("/personal")
         }
