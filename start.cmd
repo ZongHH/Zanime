@@ -7,7 +7,7 @@ title 项目启动脚本
 
 :: 定义服务路径
 set GATE_SERVICE=gateService\cmd
-set CRAWLER_SERVICE=crawler\cmd
+set CRAWLER_SERVICE=..\crawler\cmd
 set RECOMMEND_SERVICE=recommendSimilarly
 set MONITOR_SERVICE=monitorService\cmd
 set ZANIME_WEB=Zanime
