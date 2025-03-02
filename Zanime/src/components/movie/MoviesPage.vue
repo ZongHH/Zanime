@@ -19,13 +19,31 @@
     <!-- blogs-start -->
     <section class="anime-streaming bg-dark-black py-40">
         <div class="container-fluid">
-            <h3 class="white mb-24">{{ videoInfo.video_name }}</h3>
+            <div class="title-favorite-wrapper">
+                <h3 class="white mb-24">{{ videoInfo.video_name }}</h3>
+                <!-- <button @click="toggleFavorite" class="favorite-btn" :class="{ 'is-favorite': isFavorite }">
+                    <i class="fas" :class="isFavorite ? 'fa-heart' : 'fa-heart-circle-plus'"></i>
+                    {{ isFavorite ? '已收藏' : '收藏' }}
+                </button> -->
+            </div>
 
             <!-- 添加集数选择区域 -->
             <div class="episodes-section mb-24">
-                <h5 class="white mb-16">选集</h5>
+                <div class="episodes-header">
+                    <h5 class="white">选集</h5>
+
+                    <!-- 集数范围选择器 -->
+                    <div class="episode-ranges">
+                        <button v-for="range in episodeRanges" :key="range.id"
+                            @click="selectEpisodeRange(range.start, range.end)"
+                            :class="['range-btn', currentRange === range.id ? 'active' : '']">
+                            {{ range.start }}-{{ range.end }}
+                        </button>
+                    </div>
+                </div>
+
                 <div class="episodes-grid">
-                    <button v-for="episode in videoInfo.episodes" :key="episode" :class="[
+                    <button v-for="episode in displayedEpisodes" :key="episode" :class="[
                         'episode-btn',
                         episode === currentEpisode ? 'active' : ''
                     ]" @click="changeEpisode(episode)">
@@ -114,8 +132,13 @@ export default {
             formattedProgress: "",
             notificationTimeout: null,
             userProgress: {},
-            isLoading: true, // 添加加载状态
-            recommendedAnimes: []
+            isLoading: true,
+            recommendedAnimes: [],
+            isFavorite: false,  // 是否已收藏
+            allEpisodes: [],    // 所有集数
+            displayedEpisodes: [], // 当前显示的集数
+            episodeRanges: [],  // 集数范围
+            currentRange: 1     // 当前选中的范围ID
         }
     },
     components: {
@@ -123,6 +146,89 @@ export default {
         Comment
     },
     methods: {
+        // 切换收藏状态
+        async toggleFavorite() {
+            try {
+                const videoId = this.$route.query.videoId;
+                const action = this.isFavorite ? 'remove' : 'add';
+
+                const response = await axios.post('/api/favorites', {
+                    video_id: videoId,
+                    action: action
+                });
+
+                if (response.data.code === 200) {
+                    this.isFavorite = !this.isFavorite;
+                    ElMessage.success(this.isFavorite ? '已添加到收藏' : '已从收藏中移除');
+                } else {
+                    throw new Error(response.data.message);
+                }
+            } catch (error) {
+                ElMessage.error('操作失败: ' + error.message);
+            }
+        },
+
+        // 检查是否已收藏
+        async checkFavoriteStatus() {
+            try {
+                const videoId = this.$route.query.videoId;
+                const response = await axios.get(`/api/favorites/check?video_id=${videoId}`);
+
+                if (response.data.code === 200) {
+                    this.isFavorite = response.data.is_favorite;
+                }
+            } catch (error) {
+                console.error('获取收藏状态失败:', error);
+            }
+        },
+
+        // 生成集数范围
+        generateEpisodeRanges() {
+            // 确保videoInfo.episodes是数组
+            if (!Array.isArray(this.videoInfo.episodes)) return;
+
+            this.allEpisodes = [...this.videoInfo.episodes]; // 保存所有集数
+
+            // 清空并重新生成范围
+            this.episodeRanges = [];
+            const rangeSize = 30; // 每个范围包含的集数
+
+            for (let i = 0; i < this.allEpisodes.length; i += rangeSize) {
+                const start = i + 1;
+                const end = Math.min(i + rangeSize, this.allEpisodes.length);
+
+                this.episodeRanges.push({
+                    id: Math.ceil(start / rangeSize),
+                    start: start,
+                    end: end
+                });
+            }
+
+            // 如果没有范围，创建一个默认范围
+            if (this.episodeRanges.length === 0) {
+                this.episodeRanges.push({
+                    id: 1,
+                    start: 1,
+                    end: this.allEpisodes.length || 1
+                });
+            }
+
+            // 默认选择第一个范围
+            this.selectEpisodeRange(this.episodeRanges[0].start, this.episodeRanges[0].end);
+        },
+
+        // 选择集数范围
+        selectEpisodeRange(start, end) {
+            // 找到对应的范围ID
+            const range = this.episodeRanges.find(r => r.start === start && r.end === end);
+            if (range) {
+                this.currentRange = range.id;
+            }
+
+            // 筛选该范围内的集数
+            this.displayedEpisodes = this.allEpisodes.slice(start - 1, end);
+        },
+
         async changeEpisode(episode) {
             if (episode === this.currentEpisode) return; // 如果是同一集则不处理
             window.location.href = `/moviesDetail?videoId=${this.videoInfo.video_id}&episode=${episode}`;
@@ -137,6 +243,8 @@ export default {
                 this.videoInfo = response.data.video_info;
                 this.videoInfo.video_id = videoId;
 
+                // 获取视频信息后生成集数范围
+                this.generateEpisodeRanges();
             } catch (error) {
                 console.error('获取视频信息失败:', error);
             }
@@ -228,7 +336,8 @@ export default {
         async initializeVideo() {
             await this.fetchUserProgress();     //获取用户进度
             this.loadSavedProgress();           //加载用户进度
-            this.fetchVideoInfo();              //获取选集信息
+            await this.fetchVideoInfo();        //获取选集信息
+            this.checkFavoriteStatus();         //检查收藏状态
             aksVideoPlayer();                   //初始化aksVideoPlayer
             app();                              //初始化页面事件
         },
@@ -345,7 +454,7 @@ export default {
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 500;
     display: flex;
     align-items: center;
@@ -493,5 +602,143 @@ export default {
     /* 设置你想要的高度 */
     object-fit: cover;
     /* 保持图片比例，裁剪多余部分 */
+}
+
+/* 添加收藏按钮样式 */
+.title-favorite-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.title-favorite-wrapper h3 {
+    margin-bottom: 0;
+}
+
+.favorite-btn {
+    background-color: rgba(171, 5, 17, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 8px 16px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.favorite-btn:hover {
+    background-color: #AB0511;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(171, 5, 17, 0.3);
+}
+
+.favorite-btn.is-favorite {
+    background-color: #2A2A2A;
+}
+
+.favorite-btn.is-favorite:hover {
+    background-color: #333;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.favorite-btn i {
+    font-size: 16px;
+}
+
+/* 修改选集部分的样式 */
+.episodes-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.episodes-header h5 {
+    margin-bottom: 0;
+}
+
+.episode-ranges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.range-btn {
+    background: rgb(0 0 0 / 0%);
+    border: 1px solid #444;
+    color: #ffffff;
+    padding: 6px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-size: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(5px);
+    position: relative;
+    overflow: hidden;
+}
+
+.range-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.range-btn:hover {
+    background: #333;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+.range-btn:hover::before {
+    opacity: 1;
+}
+
+.range-btn.active {
+    background: linear-gradient(135deg, #AB0511, #cc0000);
+    border-color: transparent;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(171, 5, 17, 0.4);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .episodes-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .episode-ranges {
+        justify-content: flex-start;
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 5px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        /* Firefox */
+    }
+
+    .episode-ranges::-webkit-scrollbar {
+        /* Chrome, Safari, Edge */
+        display: none;
+    }
+
+    .range-btn {
+        padding: 5px 12px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
 }
 </style>
