@@ -132,7 +132,7 @@ func (r *VideoRepositoryImpl) GetVideoInfoWithEposidesByVideoID(ctx context.Cont
 		FROM anime_videos a
 			JOIN video_urls v ON a.video_id = v.video_id
 		WHERE a.video_id = ?
-		GROUP BY a.video_name
+		GROUP BY a.video_id, a.video_name
 	`
 	video := &entity.Video{}
 	var episodes string
