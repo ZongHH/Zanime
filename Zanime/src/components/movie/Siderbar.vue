@@ -248,7 +248,7 @@ export default {
     height: 80vh;
     background: rgba(20, 20, 20, 0.95);
     border-radius: 12px 0 0 12px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.2s ease, clip-path 0.2s ease;
     box-shadow: -5px 0 25px rgba(0, 0, 0, 0.4);
     overflow: hidden;
     z-index: 1000;
@@ -258,8 +258,7 @@ export default {
 
 .sidebar--collapsed {
     width: 50px;
-    height: 120px;
-    border-radius: 8px 0 0 8px;
+    clip-path: inset(0 0 calc(100% - 60px) 0);
 }
 
 .sidebar-header {
@@ -313,7 +312,7 @@ export default {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: transform 0.15s ease;
     position: relative;
     z-index: 2;
     padding: 0;
@@ -357,12 +356,11 @@ export default {
 
 .product-item-container {
     margin-bottom: 15px;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-    animation: fadeIn 0.5s ease-in-out;
+    transition: transform 0.2s ease;
 }
 
 .product-item-container:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px);
 }
 
 .product-item {
@@ -373,7 +371,7 @@ export default {
     flex-direction: column;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: background-color 0.2s ease;
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -393,11 +391,6 @@ export default {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s ease;
-}
-
-.product-item:hover .product-image {
-    transform: scale(1.05);
 }
 
 .product-info {
@@ -490,12 +483,11 @@ export default {
 @keyframes bounce {
 
     0%,
-    80%,
     100% {
         transform: scale(0);
     }
 
-    40% {
+    50% {
         transform: scale(1.0);
     }
 }
@@ -503,12 +495,10 @@ export default {
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(10px);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
     }
 }
 
@@ -521,7 +511,7 @@ export default {
 
     .sidebar--collapsed {
         width: 40px;
-        height: 100px;
+        clip-path: inset(0 0 calc(100% - 60px) 0);
     }
 
     .sidebar-content {
@@ -535,5 +525,10 @@ export default {
     .product-name {
         font-size: 0.85rem;
     }
+}
+
+/* 移除遮罩层，使用clip-path代替 */
+.sidebar--collapsed::after {
+    content: none;
 }
 </style>

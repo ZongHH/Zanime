@@ -9,24 +9,38 @@ import (
 	"gateService/internal/infrastructure/config"
 	"gateService/internal/infrastructure/middleware/auth"
 	"gateService/internal/interfaces/dto"
+	"gateService/pkg/mq/nsqpool"
 	"gateService/pkg/password"
 	"io"
+	"math"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
+// accountConfig 账户相关配置
+type accountConfig struct {
+	regInterval time.Duration // 注册间隔时间,用于限制注册频率
+	ttl         time.Duration // 账户生存时间,用于临时账户过期控制
+	redisPrefix string        // redis缓存前缀
+}
+
 type UserServiceImpl struct {
+	accountConfig         *accountConfig
 	storageConfig         *config.StorageConfig
 	userRepository        repository.UserRepository
 	postRepository        repository.PostRepository
 	postCommentRepository repository.PostCommentRepository
 	jwtManager            *auth.JWTManager
 	cookieManager         *auth.CookieManager
+	producerPool          *nsqpool.ProducerPool
 }
 
 func NewUserServiceImpl(
@@ -36,14 +50,21 @@ func NewUserServiceImpl(
 	postCommentRepository repository.PostCommentRepository,
 	jwtManager *auth.JWTManager,
 	cookieManager *auth.CookieManager,
+	producerPool *nsqpool.ProducerPool,
 ) *UserServiceImpl {
 	return &UserServiceImpl{
+		accountConfig: &accountConfig{
+			regInterval: 24 * time.Hour,
+			ttl:         1 * time.Hour,
+			redisPrefix: "test_account:exist:",
+		},
 		storageConfig:         storageConfig,
 		userRepository:        userRepository,
 		postRepository:        postRepository,
 		postCommentRepository: postCommentRepository,
 		jwtManager:            jwtManager,
 		cookieManager:         cookieManager,
+		producerPool:          producerPool,
 	}
 }
 
@@ -94,15 +115,15 @@ func (s *UserServiceImpl) Login(ctx context.Context, user *dto.LoginRequest) (*d
 	}
 	exist, err := s.userRepository.VerifyUser(ctx, userInfo)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("验证用户失败: %v", err)
 	}
 	if !exist {
-		return nil, errors.New("账号或密码错误")
+		return nil, fmt.Errorf("账号或密码错误")
 	}
 
 	token, err := s.jwtManager.GenerateToken(userInfo)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("生成token失败: %v", err)
 	}
 
 	if c, ok := ctx.(*gin.Context); ok {
@@ -126,10 +147,17 @@ func (s *UserServiceImpl) VerifyUser(ctx context.Context, user *dto.VerifyUserRe
 	if c, ok := ctx.(*gin.Context); ok {
 		userInfo := c.MustGet("UserInfo").(*auth.CustomClaims).UserInfo
 		if userInfo.UserID != user.UserID {
-			return nil, errors.New("用户ID不匹配")
+			return nil, fmt.Errorf("用户ID不匹配")
+		}
+		exist, _, err := s.userRepository.CheckInRedis(ctx, "test_account:deleted:"+strconv.Itoa(userInfo.UserID))
+		if err != nil {
+			return nil, fmt.Errorf("检查体验用户账号是否已失效失败: %v", err)
+		}
+		if exist {
+			return nil, fmt.Errorf("体验用户账号已失效")
 		}
 	} else {
-		return nil, errors.New("context is not a gin context")
+		return nil, fmt.Errorf("context is not a gin context")
 	}
 	return &dto.VerifyUserResponse{
 		Code:    200,
@@ -368,5 +396,59 @@ func (s *UserServiceImpl) GetUserNotifications(ctx context.Context, user *dto.Us
 	return &dto.UserNotificationResponse{
 		Code:          200,
 		Notifications: response,
+	}, nil
+}
+
+func (s *UserServiceImpl) GetTestAccount(ctx context.Context, user *dto.TestAccountRequest) (*dto.TestAccountResponse, error) {
+	exist, ttl, err := s.userRepository.CheckInRedis(ctx, s.accountConfig.redisPrefix+user.UserIP)
+	if err != nil {
+		return nil, fmt.Errorf("检查IP是否已经获取过体验账号失败: %v", err)
+	}
+
+	if exist {
+		return nil, fmt.Errorf("您已经获取过体验账号，请%v小时后再来吧", math.Ceil(ttl.Hours()))
+	}
+
+	uuid := strings.ReplaceAll(uuid.New().String(), "-", "")[:6]
+	timestamp := strconv.FormatInt(time.Now().UnixNano(), 10)
+	timestamp = timestamp[len(timestamp)-4:]
+	testAccount := &entity.UserInfo{
+		Username:  fmt.Sprintf("%s_%s", uuid, timestamp),
+		Email:     fmt.Sprintf("%s_%s@example.com", uuid, timestamp),
+		Password:  timestamp + uuid,
+		AvatarURL: "/src/static/picture/Ellipse_3.png",
+	}
+
+	tx, err := s.userRepository.BeginTx(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("开始事务失败: %v", err)
+	}
+	defer tx.Rollback()
+
+	err = s.userRepository.CreateUserWithTx(ctx, tx, testAccount)
+	if err != nil {
+		return nil, fmt.Errorf("创建体验账号失败: %v", err)
+	}
+
+	err = s.producerPool.DeferredPublish(ctx, "test_account_queue", s.accountConfig.ttl, []byte(fmt.Sprintf("%d", testAccount.UserID)))
+	if err != nil {
+		return nil, fmt.Errorf("发送体验账号到消息队列失败: %v", err)
+	}
+
+	err = s.userRepository.SetInRedis(ctx, s.accountConfig.redisPrefix+user.UserIP, testAccount.UserID, s.accountConfig.regInterval)
+	if err != nil {
+		return nil, fmt.Errorf("设置IP获取体验账号失败: %v", err)
+	}
+
+	if err = tx.Commit(); err != nil {
+		return nil, fmt.Errorf("提交事务失败: %v", err)
+	}
+
+	return &dto.TestAccountResponse{
+		Code: 200,
+		Account: &dto.TestAccount{
+			Email:    testAccount.Email,
+			Password: testAccount.Password,
+		},
 	}, nil
 }

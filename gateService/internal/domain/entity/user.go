@@ -14,6 +14,7 @@ type UserInfo struct {
 	BirthDate   string `json:"birth_date"`    // 出生日期,格式:YYYY-MM-DD,默认2000-01-01
 	CreatedAt   string `json:"created_at"`    // 创建时间,自动生成
 	LastLoginAt string `json:"last_login_at"` // 最后登录时间,自动更新
+	Status      int8   `json:"status"`        // 用户状态:0-删除,1-正常
 }
 
 // UserNotification 用户通知结构体

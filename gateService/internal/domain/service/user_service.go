@@ -96,4 +96,13 @@ type UserService interface {
 	// - *dto.UserNotificationResponse: 获取用户通知响应数据,包含通知列表
 	// - error: 获取用户通知过程中的错误信息
 	GetUserNotifications(ctx context.Context, user *dto.UserNotificationRequest) (*dto.UserNotificationResponse, error)
+
+	// GetTestAccount 获取体验账号
+	// 参数:
+	// - ctx: 上下文信息
+	// - user: 获取体验账号请求参数,包含用户IP地址
+	// 返回:
+	// - *dto.TestAccountResponse: 获取体验账号响应数据,包含体验账号邮箱和密码
+	// - error: 获取体验账号过程中的错误信息
+	GetTestAccount(ctx context.Context, user *dto.TestAccountRequest) (*dto.TestAccountResponse, error)
 }

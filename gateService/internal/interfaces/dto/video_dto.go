@@ -4,13 +4,21 @@ import "gateService/internal/domain/entity"
 
 // GetVideoInfoRequest 获取视频信息的请求参数
 type GetVideoInfoRequest struct {
-	VideoID int `form:"videoId"` // 视频ID
+	UserID  int `form:"user_id"`                    // 用户ID
+	VideoID int `form:"videoId" binding:"required"` // 视频ID
+}
+
+type VideoInfo struct {
+	ID         int      `json:"video_id"`    // 视频ID
+	Name       string   `json:"video_name"`  // 视频名称
+	Episodes   []string `json:"episodes"`    // 集数
+	IsFavorite bool     `json:"is_favorite"` // 请求用户是否收藏
 }
 
 // GetVideoInfoResponse 获取视频信息的响应
 type GetVideoInfoResponse struct {
-	Code      int           `json:"code"`       // 响应状态码
-	VideoInfo *entity.Video `json:"video_info"` // 视频详细信息
+	Code      int        `json:"code"`       // 响应状态码
+	VideoInfo *VideoInfo `json:"video_info"` // 视频详细信息
 }
 
 // GetVideoLibraryRequest 获取视频库的请求参数

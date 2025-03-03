@@ -143,3 +143,20 @@ type UserNotification struct {
 	Type     int8   `json:"type"`     // 通知类型
 	Time     string `json:"time"`     // 通知时间
 }
+
+// TestAccountRequest 体验账号请求
+type TestAccountRequest struct {
+	UserIP string `form:"user_ip"` // 用户IP地址
+}
+
+// TestAccount 体验账号
+type TestAccount struct {
+	Email    string `json:"email"`    // 体验账号邮箱
+	Password string `json:"password"` // 体验账号密码
+}
+
+// TestAccountResponse 体验账号响应
+type TestAccountResponse struct {
+	Code    int          `json:"code"`    // 响应状态码,200表示成功
+	Account *TestAccount `json:"account"` // 体验账号信息
+}

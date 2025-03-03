@@ -74,33 +74,41 @@
                         <div class="history-section section-card">
                             <div class="section-header">
                                 <h3>观看历史</h3>
-                                <button class="more-btn" @click="showHistoryModal" v-if="watchHistory.length > 4">
+                                <button class="more-btn" @click="showHistoryModal"
+                                    v-if="watchHistory && watchHistory.length > displayLimit">
                                     更多 <i class="fas fa-chevron-right"></i>
                                 </button>
                             </div>
                             <div class="anime-grid history-grid">
-                                <div v-for="(anime, index) in limitedWatchHistory" :key="anime.id" class="anime-card"
-                                    @click="continueWatching(anime)">
-                                    <div class="card-image">
-                                        <img :src="anime.cover_image_url" :alt="anime.title">
-                                        <div class="progress-overlay">
-                                            <div class="progress-bar" :style="{ width: anime.progress + '%' }"></div>
-                                        </div>
-                                        <div class="status-badge" :class="anime.status">
-                                            {{ getStatusText(anime.status) }}
-                                        </div>
-                                    </div>
-                                    <div class="card-info">
-                                        <h4>{{ anime.title }}</h4>
-                                        <div class="episode-info">
-                                            <span class="video-name">{{ anime.video_name }}</span>
-                                            <div class="episode-progress">
-                                                <span class="episode">{{ anime.episode }}</span>
-                                                <span class="progress-text">{{ formatProgress(anime.progress) }}</span>
+                                <template v-if="watchHistory && watchHistory.length > 0">
+                                    <div v-for="(anime, index) in limitedWatchHistory" :key="anime.id"
+                                        class="anime-card" @click="continueWatching(anime)">
+                                        <div class="card-image">
+                                            <img :src="anime.cover_image_url" :alt="anime.title">
+                                            <div class="progress-overlay">
+                                                <div class="progress-bar" :style="{ width: anime.progress + '%' }">
+                                                </div>
+                                            </div>
+                                            <div class="status-badge" :class="anime.status">
+                                                {{ getStatusText(anime.status) }}
                                             </div>
                                         </div>
-                                        <p class="update-time">{{ formatLastWatched(anime.updated_at) }}</p>
+                                        <div class="card-info">
+                                            <h4>{{ anime.title }}</h4>
+                                            <div class="episode-info">
+                                                <span class="video-name">{{ anime.video_name }}</span>
+                                                <div class="episode-progress">
+                                                    <span class="episode">{{ anime.episode }}</span>
+                                                    <span class="progress-text">{{ formatProgress(anime.progress)
+                                                        }}</span>
+                                                </div>
+                                            </div>
+                                            <p class="update-time">{{ formatLastWatched(anime.updated_at) }}</p>
+                                        </div>
                                     </div>
+                                </template>
+                                <div v-else class="empty-state">
+                                    <p>还没有观看记录~</p>
                                 </div>
                             </div>
                         </div>
@@ -109,23 +117,29 @@
                         <div class="favorite-anime-section section-card">
                             <div class="section-header">
                                 <h3>收藏动漫</h3>
-                                <button class="more-btn" @click="showCollectionModal" v-if="favoriteAnimes.length > 6">
+                                <button class="more-btn" @click="showCollectionModal"
+                                    v-if="favoriteAnimes && favoriteAnimes.length > displayLimit">
                                     更多 ({{ favoriteTotal }}) <i class="fas fa-chevron-right"></i>
                                 </button>
                             </div>
                             <div class="anime-grid">
-                                <div v-for="anime in limitedFavoriteAnimes" :key="anime.video_id" class="anime-card"
-                                    @click="goToAnime(anime.video_id)">
-                                    <div class="card-image">
-                                        <img :src="anime.cover_image_url" :alt="anime.title">
-                                        <div class="favorite-badge">
-                                            <i class="fas fa-heart"></i>
+                                <template v-if="favoriteAnimes && favoriteAnimes.length > 0">
+                                    <div v-for="anime in limitedFavoriteAnimes" :key="anime.video_id" class="anime-card"
+                                        @click="goToAnime(anime.video_id)">
+                                        <div class="card-image">
+                                            <img :src="anime.cover_image_url" :alt="anime.title">
+                                            <div class="favorite-badge">
+                                                <i class="fas fa-heart"></i>
+                                            </div>
+                                        </div>
+                                        <div class="card-info">
+                                            <h4>{{ anime.title }}</h4>
+                                            <p class="favorite-date">收藏于 {{ formatDate(anime.collected_at) }}</p>
                                         </div>
                                     </div>
-                                    <div class="card-info">
-                                        <h4>{{ anime.title }}</h4>
-                                        <p class="favorite-date">收藏于 {{ formatDate(anime.collected_at) }}</p>
-                                    </div>
+                                </template>
+                                <div v-else class="empty-state">
+                                    <p>还没有收藏动漫~</p>
                                 </div>
                             </div>
                         </div>
@@ -158,33 +172,38 @@
 
                         <!-- 我的帖子列表 -->
                         <div class="my-posts section-card">
-                            <h4>最近发布</h4>
+                            <h4 class="mb-3">最近发布</h4>
                             <div class="posts-list">
-                                <div v-for="post in recentPosts" :key="post.id" class="post-item"
-                                    @click="goToPost(post.id)">
-                                    <div class="post-content">
-                                        <h4 class="post-title">{{ post.title }}</h4>
-                                        <div class="post-meta">
-                                            <div class="meta-stats">
-                                                <span class="meta-item">
-                                                    <i class="fas fa-eye"></i>
-                                                    {{ formatNumber(post.view_count) }}
-                                                </span>
-                                                <span class="meta-item">
-                                                    <i class="fas fa-comment"></i>
-                                                    {{ formatNumber(post.comment_count) }}
-                                                </span>
-                                                <span class="meta-item">
-                                                    <i class="fas fa-heart"></i>
-                                                    {{ formatNumber(post.like_count) }}
-                                                </span>
+                                <template v-if="recentPosts && recentPosts.length > 0">
+                                    <div v-for="post in recentPosts" :key="post.id" class="post-item"
+                                        @click="goToPost(post.id)">
+                                        <div class="post-content">
+                                            <h4 class="post-title">{{ post.title }}</h4>
+                                            <div class="post-meta">
+                                                <div class="meta-stats">
+                                                    <span class="meta-item">
+                                                        <i class="fas fa-eye"></i>
+                                                        {{ formatNumber(post.view_count) }}
+                                                    </span>
+                                                    <span class="meta-item">
+                                                        <i class="fas fa-comment"></i>
+                                                        {{ formatNumber(post.comment_count) }}
+                                                    </span>
+                                                    <span class="meta-item">
+                                                        <i class="fas fa-heart"></i>
+                                                        {{ formatNumber(post.like_count) }}
+                                                    </span>
+                                                </div>
+                                                <span class="post-time">{{ formatLastPosted(post.created_at) }}</span>
                                             </div>
-                                            <span class="post-time">{{ formatLastPosted(post.created_at) }}</span>
+                                        </div>
+                                        <div class="post-arrow">
+                                            <i class="fas fa-chevron-right"></i>
                                         </div>
                                     </div>
-                                    <div class="post-arrow">
-                                        <i class="fas fa-chevron-right"></i>
-                                    </div>
+                                </template>
+                                <div v-else class="empty-state">
+                                    <p>还没有发布过帖子~</p>
                                 </div>
                             </div>
                         </div>
@@ -239,7 +258,7 @@ export default {
             favoriteAnimes: [],
             favoriteTotal: 0,
             recentPosts: [],            // 最近发布的帖子
-            historyLimit: 6,            // 默认显示数量
+            displayLimit: 6,            // 默认显示数量
             showHistory: false,
             showEdit: false,
             showCollection: false  // 添加收藏弹窗控制变量
@@ -251,14 +270,20 @@ export default {
          * @returns {Array} 返回截取后的观看历史数组
          */
         limitedWatchHistory() {
-            return this.watchHistory.slice(0, this.historyLimit);
+            if (this.watchHistory) {
+                return this.watchHistory.slice(0, this.displayLimit);
+            }
+            return [];
         },
         /**
          * 限制收藏动漫显示数量
          * @returns {Array} 返回截取后的收藏动漫数组
          */
         limitedFavoriteAnimes() {
-            return this.favoriteAnimes.slice(0, 6); // 只显示前6个
+            if (this.favoriteAnimes) {
+                return this.favoriteAnimes.slice(0, this.displayLimit);
+            }
+            return [];
         }
     },
     methods: {
@@ -394,7 +419,7 @@ export default {
          * TODO: 实现升级会员功能
          */
         upgradeVip() {
-            // 实现升级会员功能
+            this.handleServiceUnavailable();
         },
         /**
          * 从localStorage加载用户信息
@@ -531,6 +556,12 @@ export default {
                     videoId: videoId
                 }
             });
+        },
+        /**
+         * 处理服务暂未开放的情况
+         */
+        handleServiceUnavailable() {
+            ElMessage.warning("服务暂未开放");
         }
     },
     async mounted() {
@@ -712,5 +743,13 @@ export default {
     color: rgba(255, 255, 255, 0.5);
     font-size: 0.85rem;
     margin-top: 4px;
+}
+
+.empty-state p {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.9rem;
+    text-align: center;
+    margin: 0;
+    white-space: nowrap;
 }
 </style>

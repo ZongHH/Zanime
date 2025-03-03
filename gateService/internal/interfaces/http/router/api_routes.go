@@ -17,7 +17,7 @@ import (
 func (c *Controller) setupAPIRoutes() {
 	// 创建API路由组，所有路由需要JWT认证
 	apiGroup := c.engine.Group("/api")
-	apiGroup.Use(auth.JWTAuthMiddleware(c.jwtManager, c.cookieManager)) // 注入JWT和Cookie管理器
+	apiGroup.Use(auth.JWTAuthMiddleware(c.jwtManager, c.cookieManager, c.userRepository)) // 注入JWT和Cookie管理器
 
 	// 路由分组注册
 	{
@@ -86,7 +86,7 @@ func (c *Controller) setupAPIRoutes() {
 
 	// 创建连接路由组，所有路由需要JWT认证
 	conGroup := c.engine.Group("/conn")
-	conGroup.Use(auth.JWTAuthMiddleware(c.jwtManager, c.cookieManager))
+	conGroup.Use(auth.JWTAuthMiddleware(c.jwtManager, c.cookieManager, c.userRepository))
 	{
 		// ================== WebSocket模块 ==================
 		// 功能：建立实时通信连接

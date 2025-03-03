@@ -75,6 +75,7 @@ func initServices(cfg *config.Config, bases *bases, repos *repositories) *servic
 			repos.PostCommentRepo, // 帖子评论数据仓储
 			bases.JwtManager,      // JWT认证组件
 			bases.CookieManager,   // Cookie管理组件
+			bases.ProducerPool,    // 消息队列生产者池
 		),
 		PostService: serviceImpl.NewPostServiceImpl(
 			&cfg.Storage,              // 文件存储配置

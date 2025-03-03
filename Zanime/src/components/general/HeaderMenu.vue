@@ -38,15 +38,15 @@
                                             class="coming-soon">开发中</span></a></li>
                             </ul>
                         </li>
-                        <li class="dropdown disabled">
-                            <router-link to="#">
+                        <li class="dropdown">
+                            <router-link to="/feedback">
                                 反馈中心
+                                <span class="beta-badge">Beta</span>
                                 <i class="fas fa-chevron-down"></i>
-                                <span class="coming-soon">开发中</span>
                             </router-link>
                             <ul class="dropdown-menu">
-                                <li><router-link to="#">反馈建议</router-link></li>
-                                <li><router-link to="#">反馈BUG</router-link></li>
+                                <li><router-link to="/feedback?type=suggestion">反馈建议</router-link></li>
+                                <li><router-link to="/feedback?type=bug">反馈BUG</router-link></li>
                             </ul>
                         </li>
                     </ul>
@@ -572,5 +572,21 @@ export default {
     .tooltip-text {
         display: none;
     }
+}
+
+/* 添加Beta标签样式 */
+.beta-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    background: #833232;
+    color: white;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-weight: 500;
+    vertical-align: middle;
+    position: relative;
+    top: 1px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 </style>

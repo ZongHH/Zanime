@@ -183,3 +183,21 @@ func (h *UserHandler) GetUserNotifications(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response)
 }
+
+func (h *UserHandler) GetTestAccount(c *gin.Context) {
+	var request dto.TestAccountRequest
+	if err := c.ShouldBind(&request); err != nil {
+		c.Error(errors.NewAppError(errors.ErrParamInvalid.Code, err.Error(), err))
+		return
+	}
+
+	request.UserIP = c.ClientIP()
+
+	response, err := h.userService.GetTestAccount(c.Request.Context(), &request)
+	if err != nil {
+		c.Error(errors.NewAppError(errors.ErrInternalError.Code, err.Error(), err))
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+}

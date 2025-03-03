@@ -27,6 +27,9 @@ func (v *VideoHandler) GetVideoInfo(c *gin.Context) {
 		return
 	}
 
+	userInfo := c.MustGet("UserInfo").(*auth.CustomClaims).UserInfo
+	request.UserID = userInfo.UserID
+
 	response, err := v.videoService.GetVideoInfo(c.Request.Context(), request)
 	if err != nil {
 		c.Error(errors.NewAppError(errors.ErrInternalError.Code, err.Error(), err))
@@ -135,7 +138,7 @@ func (v *VideoHandler) GetAnimeCollection(c *gin.Context) {
 
 	userInfo := c.MustGet("UserInfo").(*auth.CustomClaims).UserInfo
 	request.UserID = userInfo.UserID
-	request.Limit = 10
+	request.Limit = 15
 
 	response, err := v.videoService.GetAnimeCollection(c.Request.Context(), request)
 	if err != nil {

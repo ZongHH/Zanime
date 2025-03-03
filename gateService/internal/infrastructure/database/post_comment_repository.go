@@ -364,11 +364,25 @@ func (p *PostCommentRepositoryImpl) UpdateLikeCountTx(ctx context.Context, tx *s
 // 返回:
 // - error: 插入过程中的错误信息
 func (p *PostCommentRepositoryImpl) InsertCommentLikeTx(ctx context.Context, tx *sql.Tx, commentLike *entity.PostCommentLike) error {
-	query := `INSERT INTO post_comment_likes (user_id, comment_id, status) 
+	// 先查询是否已存在记录及其状态
+	var existingStatus int8
+	query := `SELECT status FROM post_comment_likes WHERE user_id = ? AND comment_id = ?`
+	err := tx.QueryRowContext(ctx, query, commentLike.UserID, commentLike.CommentID).Scan(&existingStatus)
+	if err != nil && err != sql.ErrNoRows {
+		return fmt.Errorf("查询点赞记录失败: %v", err)
+	}
+
+	// 如果记录存在且状态相同,返回错误
+	if err != sql.ErrNoRows && existingStatus == commentLike.Status {
+		return fmt.Errorf("点赞状态未发生变化")
+	}
+
+	// 插入或更新记录
+	query = `INSERT INTO post_comment_likes (user_id, comment_id, status) 
 	VALUES (?, ?, ?) 
 	ON DUPLICATE KEY UPDATE status = ?`
 
-	_, err := tx.ExecContext(ctx, query,
+	_, err = tx.ExecContext(ctx, query,
 		commentLike.UserID,
 		commentLike.CommentID,
 		commentLike.Status,
