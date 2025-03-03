@@ -7,20 +7,38 @@ import (
 	"fmt"
 	"gateService/internal/domain/entity"
 	"strings"
+	"time"
+
+	"github.com/redis/go-redis/v9"
 )
 
 // UserRepositoryImpl 实现了用户仓储接口
 type UserRepositoryImpl struct {
-	db *sql.DB
+	db  *sql.DB
+	rdb *redis.Client
 }
 
 // NewUserRepositoryImpl 创建一个新的用户仓储实现实例
 // 参数:
 // - db: 数据库连接对象
+// - rdb: Redis连接对象
 // 返回:
 // - *UserRepositoryImpl: 用户仓储实现实例
-func NewUserRepositoryImpl(db *sql.DB) *UserRepositoryImpl {
-	return &UserRepositoryImpl{db: db}
+func NewUserRepositoryImpl(db *sql.DB, rdb *redis.Client) *UserRepositoryImpl {
+	return &UserRepositoryImpl{
+		db:  db,
+		rdb: rdb,
+	}
+}
+
+// BeginTx 开始事务
+// 参数:
+// - ctx: 上下文
+// 返回:
+// - *sql.Tx: 事务
+// - error: 错误信息
+func (r *UserRepositoryImpl) BeginTx(ctx context.Context) (*sql.Tx, error) {
+	return r.db.BeginTx(ctx, nil)
 }
 
 // CreateUser 创建新用户
@@ -41,6 +59,27 @@ func (r *UserRepositoryImpl) CreateUser(ctx context.Context, user *entity.UserIn
 		return 0, err
 	}
 	return int(userID), nil
+}
+
+// CreateUserWithTx 使用事务创建新用户
+// 参数:
+// - ctx: 上下文
+// - tx: 事务
+// - user: 用户信息
+// 返回:
+// - error: 错误信息
+func (r *UserRepositoryImpl) CreateUserWithTx(ctx context.Context, tx *sql.Tx, user *entity.UserInfo) error {
+	query := "INSERT INTO user_infos (username, email, password, avatar_url) VALUES (?, ?, ?, ?)"
+	result, err := tx.ExecContext(ctx, query, user.Username, user.Email, user.Password, user.AvatarURL)
+	if err != nil {
+		return err
+	}
+	userID, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+	user.UserID = int(userID)
+	return nil
 }
 
 // IsExistUser 检查用户是否存在
@@ -72,7 +111,7 @@ func (r *UserRepositoryImpl) IsExistUser(ctx context.Context, email string) (boo
 // - bool: 验证是否通过
 // - error: 错误信息
 func (r *UserRepositoryImpl) VerifyUser(ctx context.Context, user *entity.UserInfo) (bool, error) {
-	query := "SELECT user_id, username, avatar_url, full_name, gender, birth_date FROM user_infos WHERE email = ? AND password = ?"
+	query := "SELECT user_id, username, avatar_url, full_name, gender, birth_date FROM user_infos WHERE email = ? AND password = ? AND status = 1"
 	row := r.db.QueryRowContext(ctx, query, user.Email, user.Password)
 	err := row.Scan(&user.UserID, &user.Username, &user.AvatarURL, &user.FullName, &user.Gender, &user.BirthDate)
 	if err != nil {
@@ -113,7 +152,7 @@ func (r *UserRepositoryImpl) GetUserByID(ctx context.Context, userID int) (*enti
 	query := "SELECT * FROM user_infos WHERE user_id = ?"
 	row := r.db.QueryRowContext(ctx, query, userID)
 	var user entity.UserInfo
-	err := row.Scan(&user.UserID, &user.Username, &user.Email, &user.Password, &user.AvatarURL, &user.Signature, &user.FullName, &user.Gender, &user.BirthDate, &user.CreatedAt, &user.LastLoginAt)
+	err := row.Scan(&user.UserID, &user.Username, &user.Email, &user.Password, &user.AvatarURL, &user.Signature, &user.FullName, &user.Gender, &user.BirthDate, &user.CreatedAt, &user.LastLoginAt, &user.Status)
 	if err != nil {
 		return nil, err
 	}
@@ -138,12 +177,13 @@ func (r *UserRepositoryImpl) UpdateUser(ctx context.Context, user *entity.UserIn
 // DeleteUser 删除用户
 // 参数:
 // - ctx: 上下文
+// - tx: 事务
 // - userID: 要删除的用户ID
 // 返回:
 // - error: 错误信息
-func (r *UserRepositoryImpl) DeleteUser(ctx context.Context, userID int) error {
-	query := "DELETE FROM user_infos WHERE user_id = ?"
-	_, err := r.db.ExecContext(ctx, query, userID)
+func (r *UserRepositoryImpl) DeleteUser(ctx context.Context, tx *sql.Tx, userID int) error {
+	query := "UPDATE user_infos SET status = 0 WHERE user_id = ?"
+	_, err := tx.ExecContext(ctx, query, userID)
 	if err != nil {
 		return err
 	}
@@ -343,5 +383,46 @@ func (r *UserRepositoryImpl) CreateUserNotification(ctx context.Context, tx *sql
 		return err
 	}
 
+	return nil
+}
+
+// CheckInRedis 检查键是否存在于Redis中
+// 参数:
+// - ctx: 上下文
+// - key: 键
+// 返回:
+// - bool: 键是否存在
+// - time.Duration: 剩余过期时间
+// - error: 错误信息
+func (r *UserRepositoryImpl) CheckInRedis(ctx context.Context, key string) (bool, time.Duration, error) {
+	// 使用Redis检查键是否存在
+	ttl, err := r.rdb.TTL(ctx, key).Result()
+	if err != nil {
+		return false, 0, err
+	}
+
+	// 如果key不存在,TTL返回-2
+	// 如果key存在但没有设置过期时间,TTL返回-1
+	if ttl == -2 {
+		return false, 0, nil
+	}
+
+	return true, ttl, nil
+}
+
+// SetInRedis 设置键在Redis中
+// 参数:
+// - ctx: 上下文
+// - key: 键
+// - value: 值
+// - ttl: 过期时间
+// 返回:
+// - error: 错误信息
+func (r *UserRepositoryImpl) SetInRedis(ctx context.Context, key string, value int, ttl time.Duration) error {
+	// 将键和值存入Redis,并设置过期时间
+	err := r.rdb.Set(ctx, key, value, ttl).Err()
+	if err != nil {
+		return err
+	}
 	return nil
 }

@@ -138,7 +138,7 @@ func (v *VideoHandler) GetAnimeCollection(c *gin.Context) {
 
 	userInfo := c.MustGet("UserInfo").(*auth.CustomClaims).UserInfo
 	request.UserID = userInfo.UserID
-	request.Limit = 10
+	request.Limit = 15
 
 	response, err := v.videoService.GetAnimeCollection(c.Request.Context(), request)
 	if err != nil {

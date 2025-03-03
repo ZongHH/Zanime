@@ -38,7 +38,7 @@ type repositories struct {
 func initRepositories(bases *bases) *repositories {
 	return &repositories{
 		// 初始化用户仓储,仅使用MySQL
-		UserRepo: database.NewUserRepositoryImpl(bases.DB.GetDB()),
+		UserRepo: database.NewUserRepositoryImpl(bases.DB.GetDB(), bases.RDB.GetRDB()),
 		// 初始化帖子仓储,仅使用MySQL
 		PostRepo: database.NewPostRepositoryImpl(bases.DB.GetDB()),
 		// 初始化帖子标签仓储,仅使用MySQL
