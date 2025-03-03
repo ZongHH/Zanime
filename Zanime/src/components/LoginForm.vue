@@ -1,5 +1,31 @@
 <template>
   <section class="login">
+    <!-- 体验账号提示框 -->
+    <div v-if="showTestAccount" class="test-account-tip">
+      <div class="tip-content">
+        <div class="tip-header">
+          <h5>体验账号(1小时)</h5>
+          <button class="close-btn" @click="showTestAccount = false">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="tip-body">
+          <div class="info-item">
+            <p>账号：{{ testAccount.email }}</p>
+          </div>
+          <div class="info-item">
+            <p>密码：{{ testAccount.password }}</p>
+          </div>
+          <div class="tip-footer" @click="fillTestAccount">
+            <button class="fill-button">
+              <i class="fas fa-sign-in-alt"></i>
+              <span>一键填充账号密码</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="row justify-content-center">
       <!-- 图片部分 -->
       <div class="col-xxl-6 pe-xxl-0">
@@ -36,10 +62,10 @@
 
             <!-- 忘记密码链接 -->
             <div class="text-end mb-32">
-              <a href="forgot" class="color-primary">忘记密码？</a>
+              <a href="#" class="color-primary" @click.prevent="checkServiceStatus">忘记密码？</a>
             </div>
 
-            <!-- Facebook 登录按钮 -->
+            <!-- 登录按钮 -->
             <div class="login-cards mb-32">
               <div class="text-center">
                 <input type="submit" value="登录"
@@ -47,14 +73,14 @@
               </div>
             </div>
 
-            <!-- Google 登录按钮 -->
-            <a href="#" class="link-btn mb-24">
-              <img src="@/static/picture/google.png" alt="logo" />
-              或使用谷歌账号登录
-            </a>
+            <!-- 体验账号按钮 -->
+            <button type="button" class="link-btn mb-24" @click.prevent="getTestAccount">
+              <i class="fas fa-user-circle"></i>
+              获取体验账号
+            </button>
 
             <!-- 注册链接 -->
-            <a href="signup" class="white d-flex justify-content-center gap-8">
+            <a href="#" class="white d-flex justify-content-center gap-8" @click.prevent="checkServiceStatus">
               还没有账号？
               <span class="color-primary">立即注册</span>
             </a>
@@ -66,35 +92,44 @@
 </template>
 
 <script>
+import axios from "axios";
+import { ElMessage } from "element-plus";
+
 export default {
   name: "LoginForm",
   data() {
     return {
       email: "",
       password: "",
-      userIp: "", // 添加用户IP字段
+      showTestAccount: false,
+      testAccount: {
+        email: '',
+        password: ''
+      }
     };
   },
   methods: {
-    // 获取用户IP的方法
-    async getUserIp() {
+    // 获取体验账号信息
+    async getTestAccount() {
       try {
-        const response = await axios.get('https://api.ipify.org?format=json');
-        this.userIp = response.data.ip;
+        const response = await axios.get('/api/user/test-account');
+        if (response.data.code === 200) {
+          this.testAccount = response.data.account;
+          this.showTestAccount = true;
+        } else {
+          throw new Error(response.data.message);
+        }
       } catch (error) {
-        console.error('Failed to get IP:', error);
-        this.userIp = '0.0.0.0'; // 获取失败时的默认值
+        ElMessage.warning('获取体验账号信息失败:' + error.message);
       }
     },
 
     async handleSubmit() {
-      const formData = new FormData();
-      formData.append('email', this.email);
-      formData.append('password', this.password);
-      formData.append('user_ip', this.userIp);
-
       try {
-        const response = await axios.post('/api/loginInfo', formData);
+        const response = await axios.post('/api/loginInfo', {
+          email: this.email,
+          password: this.password
+        });
 
         if (response.data.code === 200) {
           // 清空表单数据
@@ -115,27 +150,199 @@ export default {
           // 跳转到重定向地址或首页
           this.$router.push(redirectPath);
         } else {
-          showError(response.data.message);
+          throw new Error(response.data.message);
         }
       } catch (error) {
-        console.error(error);
-        showError(error.response.data.message || '登录时发生错误。');
+        ElMessage.error('登录失败:' + error.message);
       }
     },
-    // 映射 Vuex 中的 actions 到组件的方法
-    ...mapActions('websocket', ['connectWebSocket', 'sendMessage', 'disconnectWebSocket']),
+
+    // 提示服务暂未开放
+    async checkServiceStatus() {
+      ElMessage.warning('服务暂未开放');
+    },
+
+    // 一键填充测试账号
+    fillTestAccount() {
+      this.email = this.testAccount.email;
+      this.password = this.testAccount.password;
+      ElMessage.success('已自动填充账号密码');
+    },
   },
-  async mounted() {
-    await this.getUserIp(); // 组件加载时获取IP
-  },
-  computed: {
-    // 映射 Vuex 中的 state 到组件的 computed 属性
-    ...mapState('websocket', ['socket', 'isConnected', 'user']),
-  }
 };
-import axios from "axios";
-import showError from "@/static/js/showError.js";
-import { mapState, mapActions } from "vuex";
 </script>
 
-<style scoped></style>
+<style scoped>
+.test-account-tip {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  min-width: 320px;
+  background: rgba(28, 28, 35, 0.95);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.tip-content {
+  padding: 20px;
+  color: white;
+  position: relative;
+}
+
+.tip-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.2), transparent);
+}
+
+.tip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.tip-header h5 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.5px;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  padding: 8px;
+  transition: all 0.2s ease;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  margin: -4px;
+}
+
+.close-btn:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  transform: rotate(90deg);
+}
+
+.tip-body {
+  padding-top: 4px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 12px 0;
+  transition: all 0.2s ease;
+}
+
+.info-item i {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+}
+
+.info-item:hover i {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.tip-footer {
+  text-align: center;
+  margin-top: 16px;
+  padding: 0 8px;
+}
+
+.fill-button {
+  width: 100%;
+  background: linear-gradient(135deg, #ffffff 0%, #3f4a55 100%);
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 4px 15px rgba(74, 144, 226, 0.2);
+}
+
+.fill-button i {
+  font-size: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.fill-button:hover {
+  background: linear-gradient(135deg, #ffffff 0%, #3f4a55 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(74, 144, 226, 0.3);
+}
+
+.fill-button:hover i {
+  transform: translateX(3px);
+}
+
+.fill-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(74, 144, 226, 0.2);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .test-account-tip {
+    top: auto;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    min-width: auto;
+  }
+
+  .info-item {
+    padding: 12px 14px;
+  }
+
+  .info-item p {
+    font-size: 0.9rem;
+  }
+}
+</style>

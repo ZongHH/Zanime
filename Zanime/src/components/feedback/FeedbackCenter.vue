@@ -148,6 +148,7 @@
 
 <script>
 import axios from 'axios';
+import { ElMessage } from 'element-plus';
 
 export default {
     name: 'FeedbackCenter',
@@ -191,6 +192,11 @@ export default {
         };
     },
     methods: {
+        // 功能暂未开放
+        handleServiceUnavailable() {
+            ElMessage.warning('功能暂未开放');
+        },
+
         // 获取浏览器信息
         getBrowserInfo() {
             const userAgent = navigator.userAgent;
@@ -367,6 +373,10 @@ export default {
             immediate: true
         }
     },
+
+    mounted() {
+        this.handleServiceUnavailable();
+    }
 };
 </script>
 

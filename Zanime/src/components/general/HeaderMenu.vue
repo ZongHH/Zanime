@@ -41,8 +41,8 @@
                         <li class="dropdown">
                             <router-link to="/feedback">
                                 反馈中心
-                                <i class="fas fa-chevron-down"></i>
                                 <span class="beta-badge">Beta</span>
+                                <i class="fas fa-chevron-down"></i>
                             </router-link>
                             <ul class="dropdown-menu">
                                 <li><router-link to="/feedback?type=suggestion">反馈建议</router-link></li>
@@ -582,11 +582,10 @@ export default {
     color: white;
     padding: 1px 5px;
     border-radius: 4px;
-    margin-left: 6px;
     font-weight: 500;
     vertical-align: middle;
     position: relative;
-    top: -1px;
+    top: 1px;
     letter-spacing: 0.5px;
     text-transform: uppercase;
 }
