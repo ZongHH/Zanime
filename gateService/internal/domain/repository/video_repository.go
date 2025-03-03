@@ -168,6 +168,16 @@ type VideoRepository interface {
 	//   - error: 可能的错误信息
 	GetAnimeCollectionByUserAndVideoIDs(ctx context.Context, userID int, videoIDs []int) (*map[int]bool, error)
 
+	// GetAnimeCollectionByUserAndVideoID 获取用户动漫收藏状态
+	// 参数:
+	//   - ctx: 上下文信息
+	//   - userID: 用户ID
+	//   - videoID: 视频ID
+	// 返回:
+	//   - bool: 是否收藏
+	//   - error: 可能的错误信息
+	GetAnimeCollectionByUserAndVideoID(ctx context.Context, userID int, videoID int) (bool, error)
+
 	// GetAnimeGenres 获取动漫类型
 	// 参数:
 	//   - ctx: 上下文信息

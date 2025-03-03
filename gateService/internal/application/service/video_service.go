@@ -62,9 +62,22 @@ func (v *VideoServiceImpl) GetVideoInfo(ctx context.Context, request *dto.GetVid
 		}, fmt.Errorf("获取视频详细信息失败: %v", err)
 	}
 
+	isFavorite, err := v.videoRepositoty.GetAnimeCollectionByUserAndVideoID(ctx, request.UserID, request.VideoID)
+	if err != nil {
+		return &dto.GetVideoInfoResponse{
+			Code:      500,
+			VideoInfo: nil,
+		}, fmt.Errorf("获取视频收藏状态失败: %v", err)
+	}
+
 	return &dto.GetVideoInfoResponse{
-		Code:      200,
-		VideoInfo: response,
+		Code: 200,
+		VideoInfo: &dto.VideoInfo{
+			ID:         response.ID,
+			Name:       response.Name,
+			Episodes:   response.Episodes,
+			IsFavorite: isFavorite,
+		},
 	}, nil
 }
 

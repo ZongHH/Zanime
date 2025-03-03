@@ -27,6 +27,9 @@ func (v *VideoHandler) GetVideoInfo(c *gin.Context) {
 		return
 	}
 
+	userInfo := c.MustGet("UserInfo").(*auth.CustomClaims).UserInfo
+	request.UserID = userInfo.UserID
+
 	response, err := v.videoService.GetVideoInfo(c.Request.Context(), request)
 	if err != nil {
 		c.Error(errors.NewAppError(errors.ErrInternalError.Code, err.Error(), err))

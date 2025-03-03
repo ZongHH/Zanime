@@ -21,10 +21,10 @@
         <div class="container-fluid">
             <div class="title-favorite-wrapper">
                 <h3 class="white mb-24">{{ videoInfo.video_name }}</h3>
-                <!-- <button @click="toggleFavorite" class="favorite-btn" :class="{ 'is-favorite': isFavorite }">
-                    <i class="fas" :class="isFavorite ? 'fa-heart' : 'fa-heart-circle-plus'"></i>
-                    {{ isFavorite ? '已收藏' : '收藏' }}
-                </button> -->
+                <button @click="toggleFavorite" class="favorite-btn" :class="{ 'is-favorite': videoInfo.is_favorite }">
+                    <i class="fas" :class="videoInfo.is_favorite ? 'fa-heart' : 'fa-heart-circle-plus'"></i>
+                    {{ videoInfo.is_favorite ? '已收藏' : '收藏' }}
+                </button>
             </div>
 
             <!-- 添加集数选择区域 -->
@@ -134,7 +134,6 @@ export default {
             userProgress: {},
             isLoading: true,
             recommendedAnimes: [],
-            isFavorite: false,  // 是否已收藏
             allEpisodes: [],    // 所有集数
             displayedEpisodes: [], // 当前显示的集数
             episodeRanges: [],  // 集数范围
@@ -149,36 +148,19 @@ export default {
         // 切换收藏状态
         async toggleFavorite() {
             try {
-                const videoId = this.$route.query.videoId;
-                const action = this.isFavorite ? 'remove' : 'add';
-
-                const response = await axios.post('/api/favorites', {
-                    video_id: videoId,
-                    action: action
+                const response = await axios.post('/api/user/update-collection', {
+                    video_id: this.videoInfo.video_id,
+                    status: !this.videoInfo.is_favorite
                 });
 
                 if (response.data.code === 200) {
-                    this.isFavorite = !this.isFavorite;
-                    ElMessage.success(this.isFavorite ? '已添加到收藏' : '已从收藏中移除');
+                    this.videoInfo.is_favorite = !this.videoInfo.is_favorite;
+                    ElMessage.success(this.videoInfo.is_favorite ? '已添加到收藏' : '已从收藏中移除');
                 } else {
                     throw new Error(response.data.message);
                 }
             } catch (error) {
-                ElMessage.error('操作失败: ' + error.message);
-            }
-        },
-
-        // 检查是否已收藏
-        async checkFavoriteStatus() {
-            try {
-                const videoId = this.$route.query.videoId;
-                const response = await axios.get(`/api/favorites/check?video_id=${videoId}`);
-
-                if (response.data.code === 200) {
-                    this.isFavorite = response.data.is_favorite;
-                }
-            } catch (error) {
-                console.error('获取收藏状态失败:', error);
+                ElMessage.error('收藏失败: ' + error.message);
             }
         },
 
@@ -236,17 +218,18 @@ export default {
 
         async fetchVideoInfo() {
             try {
-                const urlParams = new URLSearchParams(window.location.search);
-                const videoId = urlParams.get('videoId');
+                const videoId = this.$route.query.videoId;
 
                 const response = await axios.get(`/api/video-info?videoId=${videoId}`);
-                this.videoInfo = response.data.video_info;
-                this.videoInfo.video_id = videoId;
-
-                // 获取视频信息后生成集数范围
-                this.generateEpisodeRanges();
+                if (response.data.code == 200) {
+                    this.videoInfo = response.data.video_info;
+                    // 获取视频信息后生成集数范围
+                    this.generateEpisodeRanges();
+                } else {
+                    throw new Error(response.data.message);
+                }
             } catch (error) {
-                console.error('获取视频信息失败:', error);
+                ElMessage.error('获取视频信息失败:' + error.message);
             }
         },
 
@@ -261,11 +244,11 @@ export default {
                     this.userProgress = response.data.progress
                     this.currentEpisode = response.data.progress.episode
                 } else {
-                    console.error("获取用户进度失败: ", response.data.message)
+                    throw new Error(response.data.message)
                 }
 
             } catch (error) {
-                console.error('获取用户进度失败:', error)
+                ElMessage.error('获取用户进度失败:' + error.message)
             }
         },
 
@@ -279,9 +262,8 @@ export default {
                     throw new Error(response.data.message)
                 }
             } catch (error) {
-                console.error('更新进度失败', error)
+                ElMessage.error('更新进度失败:' + error.message)
             }
-            // localStorage.setItem(`videoProgress_${this.videoInfo.video_id}`, currentTime);
         },
 
         async saveProgressOnExit() {
@@ -336,8 +318,7 @@ export default {
         async initializeVideo() {
             await this.fetchUserProgress();     //获取用户进度
             this.loadSavedProgress();           //加载用户进度
-            await this.fetchVideoInfo();        //获取选集信息
-            this.checkFavoriteStatus();         //检查收藏状态
+            this.fetchVideoInfo();              //获取选集信息
             aksVideoPlayer();                   //初始化aksVideoPlayer
             app();                              //初始化页面事件
         },

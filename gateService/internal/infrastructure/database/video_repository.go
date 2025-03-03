@@ -126,6 +126,7 @@ func (r *VideoRepositoryImpl) GetVideoInfoWithEposidesByVideoID(ctx context.Cont
 	// 获取名字、选集信息
 	query := `
 		SELECT 
+			a.video_id,
 			a.video_name, 
 			GROUP_CONCAT(v.episode ORDER BY v.id ASC SEPARATOR ',') AS episodes
 		FROM anime_videos a
@@ -135,7 +136,7 @@ func (r *VideoRepositoryImpl) GetVideoInfoWithEposidesByVideoID(ctx context.Cont
 	`
 	video := &entity.Video{}
 	var episodes string
-	err := r.db.QueryRowContext(ctx, query, videoID).Scan(&video.Name, &episodes)
+	err := r.db.QueryRowContext(ctx, query, videoID).Scan(&video.ID, &video.Name, &episodes)
 	if err != nil {
 		return nil, err
 	}
@@ -547,6 +548,27 @@ func (r *VideoRepositoryImpl) GetAnimeCollectionByUserAndVideoIDs(ctx context.Co
 	}
 
 	return &result, nil
+}
+
+func (r *VideoRepositoryImpl) GetAnimeCollectionByUserAndVideoID(ctx context.Context, userID int, videoID int) (bool, error) {
+	query := `
+		SELECT status 
+		FROM user_anime_collections
+		WHERE user_id = ? AND video_id = ?
+	`
+
+	var status int
+	err := r.db.QueryRowContext(ctx, query, userID, videoID).Scan(&status)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// 如果没有找到记录，表示用户未收藏该视频
+			return false, nil
+		}
+		return false, err
+	}
+
+	// status为1表示已收藏
+	return status == 1, nil
 }
 
 func (r *VideoRepositoryImpl) GetAnimeGenres(ctx context.Context, videoID int) ([]string, error) {

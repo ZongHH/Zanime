@@ -12,6 +12,7 @@ import NotFound from '@/views/NotFound.vue'
 import Personal from '@/views/Personal.vue';
 import Discussion from '@/views/Discussion.vue';
 import Post from '@/views/Post.vue';
+import Feedback from '@/views/Feedback.vue';
 
 const routes = [
   {
@@ -66,6 +67,12 @@ const routes = [
     path: '/post/:id',
     name: 'Post',
     component: Post,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/feedback',
+    name: 'Feedback',
+    component: Feedback,
     meta: { requiresAuth: true }
   },
   {
