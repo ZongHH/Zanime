@@ -201,10 +201,10 @@ func (m *Manager) SendMessage(connectionID string, message []byte) error {
 		case connection.send <- message:
 			return nil
 		default:
-			return fmt.Errorf("send channel full")
+			return fmt.Errorf("websocket send channel full")
 		}
 	}
-	return fmt.Errorf("connection not found")
+	return nil
 }
 
 // BroadcastMessage 广播消息到所有连接

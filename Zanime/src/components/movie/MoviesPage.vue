@@ -56,7 +56,7 @@
 
             <div class="heading">
                 <h4 class="white mb-12">相关推荐</h4>
-                <a href="#" class="p white">查看全部 <span><i class="fa-regular fa-chevron-right"></i></span></a>
+                <!-- <a href="#" class="p white">查看全部 <span><i class="fa-regular fa-chevron-right"></i></span></a> -->
             </div>
             <div class="slider-arrows mt-sm-0 mt-48 d-xxl-flex d-none">
                 <a href="javascript:;" class="arrow-btn btn-prev" data-slide="trendingSlider">

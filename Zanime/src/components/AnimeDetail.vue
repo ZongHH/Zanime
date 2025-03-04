@@ -133,6 +133,7 @@ export default {
     data() {
         return {
             animeInfo: [],
+            isLoading: false,
             Detailpage: 1, // 每次请求5条动漫数据
             pageSize: 30, // 动漫最多展示30集
             currentFilter: 'all',

@@ -172,7 +172,7 @@ export default {
     },
     computed: {
         avatarURL() {
-            return localStorage.getItem('avatar_url');
+            return localStorage.getItem('avatar_url') || 'src/static/picture/Ellipse-1.png';
         }
     },
     methods: {
