@@ -25,7 +25,7 @@
             </div>
 
             <!-- 空状态 -->
-            <div v-else-if="!orders.length" class="empty-state">
+            <div v-else-if="orders && !orders.length" class="empty-state">
                 <div class="empty-icon">
                     <svg viewBox="0 0 24 24" width="64" height="64">
                         <path fill="currentColor"
@@ -37,11 +37,11 @@
                     </svg>
                 </div>
                 <p>您暂时没有订单</p>
-                <button class="btn-go-shop">去商城逛逛</button>
+                <!-- <button class="btn-go-shop">去商城逛逛</button> -->
             </div>
 
             <!-- 订单列表 -->
-            <div v-else class="order-list">
+            <div v-else-if="orders && orders.length" class="order-list">
                 <div v-for="order in orders" :key="order.order_id" class="order-card">
                     <div class="order-header">
                         <div class="order-info">
@@ -138,6 +138,7 @@
 
 <script>
 import axios from 'axios';
+import { ElMessage } from 'element-plus';
 
 export default {
     name: 'OrderPage',
@@ -169,6 +170,11 @@ export default {
                 });
 
                 if (response.data.code == 200) {
+                    if (response.data.orders == null) {
+                        this.hasMore = false;
+                        return;
+                    }
+
                     const newOrders = response.data.orders;
 
                     if (loadMore) {
@@ -179,10 +185,10 @@ export default {
 
                     this.hasMore = newOrders.length === this.pageSize;
                 } else {
-                    console.error('Error fetching orders: response.data.code == ', response.data.code);
+                    throw new Error(response.data.message);
                 }
             } catch (error) {
-                console.error('Error fetching orders:', error);
+                ElMessage.warning('获取订单失败: ' + error.message);
             } finally {
                 if (loadMore) {
                     this.isLoadingMore = false;
