@@ -48,7 +48,24 @@
                 </div>
             </div>
             <div class="mobile-nav__container"></div>
-            <ul class="mobile-nav__contact list-unstyled">
+
+            <!-- 用户操作按钮区域 -->
+            <div class="user-actions">
+                <router-link to="/personal" class="user-action-btn">
+                    <i class="fas fa-user-circle"></i>
+                    <span>个人主页</span>
+                </router-link>
+                <router-link to="/orders" class="user-action-btn">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>我的订单</span>
+                </router-link>
+                <button class="user-action-btn logout-btn" @click="handleLogout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>注销</span>
+                </button>
+            </div>
+
+            <!-- <ul class="mobile-nav__contact list-unstyled">
                 <li>
                     <i class="fa-thin fa-envelope"></i>
                     <a href="mailto:example@company.com">example@company.com</a>
@@ -57,7 +74,7 @@
                     <i class="fa-light fa-phone-volume"></i>
                     <a href="tel:+12345678">+123 (4567) -890</a>
                 </li>
-            </ul>
+            </ul> -->
         </div>
     </div>
     <!-- Mobile Menu End -->
@@ -113,6 +130,16 @@ export default {
             setTimeout(() => {
                 this.showDropdown = false;
             }, 200);
+        },
+
+        async handleLogout() {
+            await axios.get('/api/logout');
+
+            // 清除本地存储的用户信息
+            localStorage.clear();
+
+            // 重定向到登录页面
+            this.$router.push('/login');
         },
     }
 }
@@ -219,5 +246,118 @@ export default {
     list-style: none;
     padding: 0;
     margin: 0;
+}
+
+/* 用户操作按钮样式 */
+.user-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.user-actions::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: 15px;
+    right: 15px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+
+.user-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: rgba(26, 26, 26, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    color: #FAFAFA;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.user-action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0) 70%);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.user-action-btn:hover {
+    background: rgba(45, 45, 45, 0.9);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.user-action-btn:hover::before {
+    transform: translateX(100%);
+}
+
+.user-action-btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.user-action-btn i {
+    font-size: 18px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
+}
+
+.user-action-btn:hover i {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.1);
+}
+
+.user-action-btn span {
+    position: relative;
+    z-index: 1;
+    letter-spacing: 0.3px;
+}
+
+.logout-btn {
+    background: rgba(171, 5, 17, 0.1);
+    border-color: rgba(171, 5, 17, 0.2);
+    color: #FAFAFA;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+}
+
+.logout-btn i {
+    background: rgba(171, 5, 17, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.logout-btn:hover {
+    background: rgba(171, 5, 17, 0.2);
+    border-color: rgba(171, 5, 17, 0.3);
+}
+
+.logout-btn:hover i {
+    background: rgba(171, 5, 17, 0.3);
 }
 </style>

@@ -402,9 +402,177 @@ export default {
     color: rgba(255, 255, 255, 0.3);
 }
 
-/* 移动端适配 */
+/* 移动端优化样式 */
 @media (max-width: 768px) {
+    .category-container {
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px;
+    }
+
+    .category-tabs {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        scrollbar-width: none;
+        /* Firefox */
+        -ms-overflow-style: none;
+        /* IE & Edge */
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .category-tabs::-webkit-scrollbar {
+        display: none;
+        /* Chrome, Safari, Opera */
+    }
+
+    .category-tab {
+        padding: 8px 14px;
+        font-size: 13px;
+        margin-right: 8px;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        white-space: nowrap;
+        transition: all 0.3s ease;
+    }
+
+    .category-tab i {
+        font-size: 14px;
+    }
+
+    .category-tab.active {
+        background: linear-gradient(135deg, rgba(171, 5, 17, 0.9), rgba(171, 5, 17, 0.7));
+        border-color: transparent;
+        box-shadow: 0 3px 12px rgba(171, 5, 17, 0.3);
+        transform: translateY(-1px);
+    }
+
+    .post-count {
+        font-size: 12px;
+        opacity: 0.8;
+    }
+
+    .search-box.disabled {
+        width: 100%;
+        margin: 0;
+    }
+
     .search-box.disabled input {
+        font-size: 13px;
+        height: 42px;
+        border-radius: 8px;
+    }
+
+    .create-post-btn {
+        width: 100%;
+        margin: 0;
+        height: 42px;
+        border-radius: 8px;
+        font-size: 14px;
+        background: linear-gradient(135deg, rgba(171, 5, 17, 0.9), rgba(171, 5, 17, 0.7));
+        border: none;
+        box-shadow: 0 3px 12px rgba(171, 5, 17, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .create-post-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(171, 5, 17, 0.3);
+    }
+
+    .create-post-btn:active {
+        transform: translateY(0);
+    }
+
+    .main-content {
+        padding: 15px 12px;
+    }
+
+    .posts-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .post-card {
+        margin-bottom: 0;
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    .pinned-posts {
+        margin-bottom: 15px;
+    }
+
+    .pinned-posts .post-card {
+        margin-bottom: 12px;
+    }
+
+    .loading-more {
+        padding: 15px 0;
+        font-size: 14px;
+        opacity: 0.8;
+    }
+
+    .loading-more i {
+        animation: spin 1.2s linear infinite;
+    }
+
+    .no-more {
+        padding: 12px 0;
+        font-size: 12px;
+        opacity: 0.6;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 480px) {
+    .content-container {
+        padding: 12px 8px;
+    }
+
+    .category-tab {
+        padding: 7px 12px;
+        font-size: 12px;
+    }
+
+    .main-content {
+        padding: 12px 8px;
+    }
+
+    .search-box.disabled input {
+        height: 38px;
+        font-size: 12px;
+    }
+
+    .create-post-btn {
+        height: 38px;
         font-size: 13px;
     }
 }
