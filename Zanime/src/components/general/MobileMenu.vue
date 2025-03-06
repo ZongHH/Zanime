@@ -16,7 +16,7 @@
             <div class="mobile-search-box">
                 <form @submit.prevent="handleSearch">
                     <input type="text" v-model="searchQuery" placeholder="搜索..." @input="handleSearchInput"
-                        @focus="showDropdown = true" @blur="handleBlur" required>
+                        @focus="handleFocus" @blur="handleBlur" required>
                     <button class="search" type="submit">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewbox="0 0 20 20" fill="none">
                             <g clip-path="url(#clip0_11668_3150)">
@@ -32,9 +32,12 @@
                         </svg>
                     </button>
                 </form>
-                <!-- 搜索结果下拉框 -->
-                <div class="search-dropdown" v-if="showDropdown">
-                    <ul v-if="searchResults.length > 0">
+                <!-- 搜索结果下拉框 - 修改后的结构 -->
+                <div class="search-dropdown" :class="{ active: showDropdown }" data-empty-text="没有找到相关内容">
+                    <div v-if="isLoading" class="loading">正在搜索...</div>
+                    <div v-else-if="searchResults.length === 0 && searchQuery.trim() !== ''" class="no-results">没有找到相关内容
+                    </div>
+                    <ul v-else-if="searchResults.length > 0">
                         <li v-for="result in searchResults" :key="result.id" @mousedown="handleResultClick(result)">
                             <div class="search-result-item">
                                 <img :src="result.cover_image_url" :alt="result.video_name" class="result-thumbnail">
@@ -82,6 +85,7 @@
 
 <script>
 import axios from 'axios';
+import { ElMessage } from 'element-plus';
 
 export default {
     name: "MobileMenu",
@@ -91,44 +95,81 @@ export default {
             searchResults: [],
             showDropdown: false,
             searchTimeout: null,
+            isLoading: false,
+            isInputFocused: false
         }
     },
     methods: {
+        handleFocus() {
+            this.isInputFocused = true;
+            // 如果有搜索内容，立即显示下拉框
+            if (this.searchQuery.trim() !== '') {
+                this.showDropdown = true;
+                this.fetchSearchResults();
+            }
+        },
+
         handleSearchInput() {
             clearTimeout(this.searchTimeout);
+
+            // 如果有输入内容，显示下拉框并开始搜索
             if (this.searchQuery.trim()) {
+                this.showDropdown = true;
+                this.isLoading = true;
+
                 this.searchTimeout = setTimeout(() => {
                     this.fetchSearchResults();
                 }, 300);
             } else {
                 this.searchResults = [];
+                this.showDropdown = false;
+                this.isLoading = false;
             }
         },
 
         async fetchSearchResults() {
             try {
+                this.isLoading = true;
                 const response = await axios.get(`/api/search?query=${this.searchQuery}`);
-                this.searchResults = response.data.data;
+                if (response.data.code == 200) {
+                    this.searchResults = response.data.animes || [];
+                    // 确保在搜索完成后下拉框仍然显示
+                    if (this.isInputFocused) {
+                        this.showDropdown = true;
+                    }
+                } else {
+                    this.searchResults = [];
+                    this.showDropdown = false;
+                }
             } catch (error) {
-                console.error('搜索出错:', error);
+                ElMessage.error('搜索出现错误' + error);
                 this.searchResults = [];
+            } finally {
+                this.isLoading = false;
             }
         },
 
         handleResultClick(result) {
+            this.searchQuery = result.video_name;
+            this.showDropdown = false;
             this.$router.push(`/moviesDetail?videoId=${result.video_id}`);
         },
 
         handleSearch(e) {
             e.preventDefault();
             if (this.searchQuery.trim()) {
+                this.showDropdown = false;
                 this.$router.push(`/animeDetail?params=${encodeURIComponent(this.searchQuery.trim())}`);
             }
         },
 
         handleBlur() {
+            this.isInputFocused = false;
+            // 延迟关闭下拉框，以便用户可以点击结果
             setTimeout(() => {
-                this.showDropdown = false;
+                if (!this.isInputFocused) {
+                    this.showDropdown = false;
+                }
             }, 200);
         },
 
@@ -149,6 +190,8 @@ export default {
 .mobile-search-box {
     padding: 15px;
     position: relative;
+    z-index: 1005;
+    /* 提高z-index确保下拉框在其他元素之上 */
 }
 
 .mobile-search-box form {
@@ -178,7 +221,7 @@ export default {
 
 .search-dropdown {
     position: absolute;
-    top: 100%;
+    top: calc(100% - 10px);
     left: 15px;
     right: 15px;
     background: #1A1A1A;
@@ -187,7 +230,33 @@ export default {
     margin-top: 4px;
     max-height: 300px;
     overflow-y: auto;
-    z-index: 1000;
+    z-index: 1010;
+    /* 高于搜索框本身 */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.search-dropdown.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* 始终显示空状态提示 */
+.search-dropdown::after {
+    content: attr(data-empty-text);
+    display: none;
+    padding: 15px;
+    text-align: center;
+    color: #888;
+    font-size: 14px;
+}
+
+.search-dropdown:empty::after {
+    display: block;
 }
 
 .search-result-item {
@@ -246,6 +315,42 @@ export default {
     list-style: none;
     padding: 0;
     margin: 0;
+}
+
+/* 搜索结果为空时显示提示 */
+.search-dropdown .no-results {
+    padding: 15px;
+    text-align: center;
+    color: #888;
+    font-size: 14px;
+}
+
+/* 加载中状态 */
+.search-dropdown .loading {
+    padding: 15px;
+    text-align: center;
+    color: #888;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-dropdown .loading::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    border: 2px solid #333;
+    border-top-color: #ab0511;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* 用户操作按钮样式 */
