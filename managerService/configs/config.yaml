@@ -1,0 +1,57 @@
+app:
+  name: "manager-service"
+  version: "1.0.0"
+  env: "development"  # development, testing, production
+
+managerService:
+  host: "127.0.0.1"
+  port: 9999
+  readTimeout: 5s
+  writeTimeout: 5s
+  maxHeaderBytes: 1048576  # 1MB
+  shutdownTimeout: 10s
+
+mysql:
+  host: "127.0.0.1"
+  port: 3306
+  username: "root"
+  password: "123456"
+  database: "anime"
+  charset: "utf8mb4"
+  parseTime: true
+  loc: "Local"
+  maxIdleConns: 10
+  maxOpenConns: 100
+  connMaxLifetime: 3600s
+  connMaxIdleTime: 3600s
+  slowThreshold: 200ms  # 慢查询阈值
+  logLevel: "info"     # silent, error, warn, info
+
+redis:
+  host: "127.0.0.1"
+  port: 6379
+  password: ""
+  database: 0
+  dialTimeout: 5s
+  readTimeout: 3s
+  writeTimeout: 3s
+  poolSize: 10
+  minIdleConns: 5
+  maxConnAge: 3600s
+  poolTimeout: 1s
+  idleTimeout: 300s
+  idleCheckFrequency: 60s
+
+nsq:
+  host: "127.0.0.1"
+  port: 5150
+  auth:
+    username: ""
+    password: ""
+  producer:
+    maxInFlight: 1000
+    reconnectInterval: 1s
+  consumer:
+    maxInFlight: 100
+    concurrency: 10
+    reconnectInterval: 1s
