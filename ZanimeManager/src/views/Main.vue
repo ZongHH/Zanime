@@ -16,10 +16,10 @@
         <div class="bg-white rounded-lg p-6 mb-8 shadow-sm">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-lg font-bold">最新上线</h2>
-                <button
+                <button @click="$router.push('/new-anime')"
                     class="text-sm text-indigo-600 hover:text-indigo-700 !rounded-button whitespace-nowrap">查看全部</button>
             </div>
-            <div class="grid grid-cols-4 gap-6">
+            <div class="grid grid-cols-4 gap-6" v-loading="animesLoading">
                 <div v-for="(anime, index) in latestAnimes" :key="index" class="group relative">
                     <div class="aspect-[3/4] rounded-lg overflow-hidden">
                         <img :src="anime.image" :alt="anime.title"
@@ -27,8 +27,15 @@
                     </div>
                     <div class="mt-3">
                         <h3 class="font-medium text-sm mb-1">{{ anime.title }}</h3>
-                        <p class="text-gray-500 text-xs">{{ anime.updateTime }} 更新</p>
+                        <p class="text-gray-500 text-xs">{{ formatTime(anime.updateTime) }} 更新</p>
                     </div>
+                </div>
+
+                <!-- 空状态 -->
+                <div v-if="latestAnimes.length === 0 && !animesLoading"
+                    class="col-span-4 py-10 text-center text-gray-500">
+                    <i class="fas fa-film text-4xl mb-4 block"></i>
+                    <p>暂无最新上线的动漫</p>
                 </div>
             </div>
         </div>
@@ -72,18 +79,18 @@
                     <button @click="$router.push('/operation-logs')"
                         class="text-sm text-indigo-600 hover:text-indigo-700 !rounded-button whitespace-nowrap">查看全部</button>
                 </div>
-                <div class="space-y-4">
+                <div class="space-y-4" v-loading="logsLoading">
                     <div v-for="(log, index) in operationLogs" :key="index"
                         class="flex items-start gap-4 p-4 rounded-lg hover:bg-gray-50">
                         <div class="w-8 h-8 rounded-full flex items-center justify-center"
-                            :class="log.type === 'admin' ? 'bg-purple-100' : 'bg-blue-100'">
+                            :class="log.user_type === 'admin' ? 'bg-purple-100' : 'bg-blue-100'">
                             <i
-                                :class="[log.type === 'admin' ? 'fas fa-user-shield text-purple-600' : 'fas fa-user text-blue-600']"></i>
+                                :class="[log.user_type === 'admin' ? 'fas fa-user-shield text-purple-600' : 'fas fa-user text-blue-600']"></i>
                         </div>
                         <div class="flex-1">
                             <div class="flex items-center justify-between">
-                                <h3 class="font-medium text-sm">{{ log.user }}</h3>
-                                <span class="text-xs text-gray-400">{{ log.time }}</span>
+                                <h3 class="font-medium text-sm">{{ log.user_name }}</h3>
+                                <span class="text-xs text-gray-400">{{ formatTime(log.time) }}</span>
                             </div>
                             <p class="text-sm text-gray-600 mt-1">{{ log.action }}</p>
                             <div class="mt-2 text-xs text-gray-400">
@@ -98,12 +105,16 @@
     </div>
 </template>
 <script lang="ts">
+import axios from 'axios';
+import { ElMessage } from 'element-plus';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
     data() {
         return {
             currentTab: 0,
+            logsLoading: false,
+            animesLoading: false,
             statistics: [
                 {
                     title: '总动漫数量',
@@ -134,66 +145,9 @@ export default defineComponent({
                     color: '#EF4444'
                 }
             ],
-            latestAnimes: [
-                {
-                    title: '进击的巨人 最终季',
-                    image: 'https://ai-public.mastergo.com/ai/img_res/da0433310dda9b88a6cd293dca7ba515.jpg',
-                    updateTime: '2023-12-01'
-                },
-                {
-                    title: '咒术回战 第二季',
-                    image: 'https://ai-public.mastergo.com/ai/img_res/8b5fe3117f6aea8af4518e7246b6bedc.jpg',
-                    updateTime: '2023-12-02'
-                },
-                {
-                    title: '间谍过家家 第二季',
-                    image: 'https://ai-public.mastergo.com/ai/img_res/27ce123b6864a9d5621b64a2443ce08a.jpg',
-                    updateTime: '2023-12-03'
-                },
-                {
-                    title: '海贼王 第1089话',
-                    image: 'https://ai-public.mastergo.com/ai/img_res/c5d3173638b3a3387849ff05aadb1b00.jpg',
-                    updateTime: '2023-12-04'
-                }
-            ],
+            latestAnimes: [],
             rankingTabs: ['日榜', '周榜', '月榜'],
-            operationLogs: [
-                {
-                    user: '系统管理员',
-                    type: 'admin',
-                    action: '更新了《咒术回战 第二季》的播放源信息',
-                    time: '10分钟前',
-                    module: '内容管理'
-                },
-                {
-                    user: '王梓晨',
-                    type: 'user',
-                    action: '发表了《进击的巨人》的评论',
-                    time: '25分钟前',
-                    module: '用户互动'
-                },
-                {
-                    user: '系统管理员',
-                    type: 'admin',
-                    action: '删除了违规用户评论',
-                    time: '42分钟前',
-                    module: '内容审核'
-                },
-                {
-                    user: '林雨晴',
-                    type: 'user',
-                    action: '收藏了《间谍过家家》',
-                    time: '1小时前',
-                    module: '用户行为'
-                },
-                {
-                    user: '系统管理员',
-                    type: 'admin',
-                    action: '新增了《海贼王》最新话章节',
-                    time: '2小时前',
-                    module: '内容管理'
-                }
-            ],
+            operationLogs: [],
             rankings: [
                 {
                     title: '咒术回战 第二季',
@@ -232,6 +186,92 @@ export default defineComponent({
                 }
             ]
         };
+    },
+
+    methods: {
+        async fetchStatistics() {
+            try {
+                const response = await axios.get('/api/statistics');
+                if (response.data.code === 200) {
+                    this.statistics = response.data.statisticsItems;
+                } else {
+                    throw new Error(response.data.message);
+                }
+            } catch (error) {
+                ElMessage.error('获取统计数据失败' + error);
+            }
+        },
+
+        async fetchOperationLogs() {
+            try {
+                this.logsLoading = true;
+                const response = await axios.get('/api/userActionLogs', {
+                    params: {
+                        page: 1,
+                        page_size: 5 // 首页只显示5条记录
+                    }
+                });
+
+                if (response.data.code === 200) {
+                    this.operationLogs = response.data.userActionLogs;
+                } else {
+                    throw new Error(response.data.message || '获取操作日志失败');
+                }
+            } catch (error) {
+                ElMessage.error('获取操作日志失败：' + error);
+            } finally {
+                this.logsLoading = false;
+            }
+        },
+
+        async fetchLatestAnimes() {
+            try {
+                this.animesLoading = true;
+                const response = await axios.get('/api/newAnime', {
+                    params: {
+                        page: 1,
+                        page_size: 4 // 首页只显示4条记录
+                    }
+                });
+
+                if (response.data.code === 200) {
+                    this.latestAnimes = response.data.animes;
+                } else {
+                    throw new Error(response.data.message || '获取最新动漫失败');
+                }
+            } catch (error) {
+                ElMessage.error('获取最新动漫失败：' + error);
+                // 保持数组为空或使用默认数据
+                this.latestAnimes = [];
+            } finally {
+                this.animesLoading = false;
+            }
+        },
+
+        // 将ISO时间格式转换为相对时间
+        formatTime(isoTime) {
+            const now = new Date();
+            const logTime = new Date(isoTime);
+            const diff = Math.floor((now.getTime() - logTime.getTime()) / 1000); // 差异（秒）
+
+            if (diff < 60) {
+                return '刚刚';
+            } else if (diff < 3600) {
+                return Math.floor(diff / 60) + '分钟前';
+            } else if (diff < 86400) {
+                return Math.floor(diff / 3600) + '小时前';
+            } else if (diff < 2592000) {
+                return Math.floor(diff / 86400) + '天前';
+            } else {
+                return logTime.toLocaleDateString();
+            }
+        }
+    },
+
+    mounted() {
+        this.fetchStatistics();
+        this.fetchOperationLogs();
+        this.fetchLatestAnimes();
     }
 });
 </script>

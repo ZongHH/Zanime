@@ -2,7 +2,7 @@
     <div class="p-6">
         <!-- 头部卡片：统计信息 -->
         <div class="grid grid-cols-4 gap-6 mb-6">
-            <div v-for="(stat, index) in ['总日志数', '管理员操作', '用户操作', '今日操作']" :key="index"
+            <div v-for="(stat, index) in ['总日志数', '管理员操作', '用户操作', '体验用户']" :key="index"
                 class="bg-white rounded-lg p-6 shadow-sm">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-gray-500 text-sm">{{ stat }}</h3>
@@ -10,18 +10,18 @@
                         index === 0 ? 'fas fa-clipboard-list text-indigo-600' :
                             index === 1 ? 'fas fa-user-shield text-purple-600' :
                                 index === 2 ? 'fas fa-user text-blue-600' :
-                                    'fas fa-calendar-day text-green-600']"></i>
+                                    'fas fa-user-tag text-orange-500']"></i>
                 </div>
                 <div class="flex items-end gap-2">
                     <span class="text-2xl font-bold">{{
                         index === 0 ? total :
                             index === 1 ? adminCount :
-                                index === 2 ? userCount : todayCount
+                                index === 2 ? regularCount : trialCount
                     }}</span>
                     <span :class="['text-sm', 'text-green-500']">{{
                         index === 0 ? '+8.3%' :
                             index === 1 ? '+5.7%' :
-                                index === 2 ? '+12.4%' : '+15.2%'
+                                index === 2 ? '+12.4%' : '+9.2%'
                     }}</span>
                 </div>
             </div>
@@ -42,8 +42,9 @@
                             <select v-model="filterType"
                                 class="pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm appearance-none">
                                 <option value="">全部类型</option>
-                                <option value="admin">管理员操作</option>
-                                <option value="user">用户操作</option>
+                                <option value="admin">管理员</option>
+                                <option value="regular">普通用户</option>
+                                <option value="trial">体验用户</option>
                             </select>
                             <i class="fas fa-filter absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                         </div>
@@ -76,18 +77,24 @@
             </div>
 
             <!-- 日志列表部分 -->
-            <div class="divide-y divide-gray-200">
+            <div class="divide-y divide-gray-200" v-loading="loading">
                 <div v-for="(log, index) in displayLogs" :key="index" class="p-4 hover:bg-gray-50 transition-colors">
                     <div class="flex items-start gap-4">
-                        <div class="w-10 h-10 rounded-full flex items-center justify-center"
-                            :class="log.type === 'admin' ? 'bg-purple-100' : 'bg-blue-100'">
-                            <i
-                                :class="[log.type === 'admin' ? 'fas fa-user-shield text-purple-600' : 'fas fa-user text-blue-600']"></i>
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center" :class="{
+                            'bg-purple-100': log.user_type === 'admin',
+                            'bg-blue-100': log.user_type === 'regular',
+                            'bg-orange-100': log.user_type === 'trial'
+                        }">
+                            <i :class="{
+                                'fas fa-user-shield text-purple-600': log.user_type === 'admin',
+                                'fas fa-user text-blue-600': log.user_type === 'regular',
+                                'fas fa-user-tag text-orange-500': log.user_type === 'trial'
+                            }"></i>
                         </div>
                         <div class="flex-1">
                             <div class="flex items-center justify-between">
-                                <h3 class="font-medium text-sm">{{ log.user }}</h3>
-                                <span class="text-xs text-gray-400">{{ log.time }}</span>
+                                <h3 class="font-medium text-sm">{{ log.user_name }}</h3>
+                                <span class="text-xs text-gray-400">{{ formatTime(log.time) }}</span>
                             </div>
                             <p class="text-sm text-gray-600 mt-1">{{ log.action }}</p>
                             <div class="mt-2 flex items-center justify-between">
@@ -105,7 +112,7 @@
                 </div>
 
                 <!-- 空状态 -->
-                <div v-if="displayLogs.length === 0" class="p-16 text-center text-gray-500">
+                <div v-if="displayLogs.length === 0 && !loading" class="p-16 text-center text-gray-500">
                     <i class="fas fa-clipboard-list text-4xl mb-4 block"></i>
                     <p>没有找到符合条件的操作日志</p>
                 </div>
@@ -114,9 +121,9 @@
             <!-- 分页部分 -->
             <div class="p-4 border-t border-gray-200 flex justify-end">
                 <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize"
-                    :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next"
-                    :total="filteredLogs.length" @size-change="handleSizeChange" @current-change="handleCurrentChange"
-                    background class="custom-pagination" />
+                    :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next" :total="totalRecords"
+                    @size-change="handleSizeChange" @current-change="handleCurrentChange" background
+                    class="custom-pagination" />
             </div>
         </div>
 
@@ -124,21 +131,31 @@
         <el-dialog v-model="detailVisible" title="操作日志详情" width="600px" destroy-on-close>
             <div v-if="selectedLog" class="p-4">
                 <div class="flex items-center gap-4 mb-6">
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center"
-                        :class="selectedLog.type === 'admin' ? 'bg-purple-100' : 'bg-blue-100'">
-                        <i
-                            :class="[selectedLog.type === 'admin' ? 'fas fa-user-shield text-purple-600' : 'fas fa-user text-blue-600']"></i>
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center" :class="{
+                        'bg-purple-100': selectedLog.user_type === 'admin',
+                        'bg-blue-100': selectedLog.user_type === 'regular',
+                        'bg-orange-100': selectedLog.user_type === 'trial'
+                    }">
+                        <i :class="{
+                            'fas fa-user-shield text-purple-600': selectedLog.user_type === 'admin',
+                            'fas fa-user text-blue-600': selectedLog.user_type === 'regular',
+                            'fas fa-user-tag text-orange-500': selectedLog.user_type === 'trial'
+                        }"></i>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold">{{ selectedLog.user }}</h3>
-                        <p class="text-sm text-gray-500">{{ selectedLog.type === 'admin' ? '系统管理员' : '普通用户' }}</p>
+                        <h3 class="text-lg font-bold">{{ selectedLog.user_name }}</h3>
+                        <p class="text-sm text-gray-500">{{
+                            selectedLog.user_type === 'admin' ? '系统管理员' :
+                                selectedLog.user_type === 'regular' ? '普通用户' :
+                                    '体验用户'
+                        }}</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div class="bg-gray-50 p-3 rounded-lg">
                         <p class="text-xs text-gray-500 mb-1">操作时间</p>
-                        <p class="text-sm">{{ selectedLog.time }}</p>
+                        <p class="text-sm">{{ formatFullTime(selectedLog.time) }}</p>
                     </div>
                     <div class="bg-gray-50 p-3 rounded-lg">
                         <p class="text-xs text-gray-500 mb-1">操作模块</p>
@@ -154,9 +171,9 @@
                 </div>
 
                 <div class="mb-6">
-                    <p class="text-xs text-gray-500 mb-1">操作IP</p>
+                    <p class="text-xs text-gray-500 mb-1">操作ID</p>
                     <div class="bg-gray-50 p-3 rounded-lg">
-                        <p class="text-sm">{{ selectedLog.ip || '192.168.1.' + Math.floor(Math.random() * 255) }}</p>
+                        <p class="text-sm">{{ selectedLog.id }}</p>
                     </div>
                 </div>
 
@@ -171,7 +188,8 @@
 </template>
 
 <script>
-import { ElMessage } from 'element-plus'
+import axios from 'axios';
+import { ElMessage } from 'element-plus';
 
 export default {
     name: 'OperationLogs',
@@ -182,143 +200,34 @@ export default {
             filterType: '',
             filterModule: '',
             currentPage: 1,
-            pageSize: 20,
+            pageSize: 10,
+            totalRecords: 0,
             detailVisible: false,
             selectedLog: null,
             loading: false,
-            logs: [
-                {
-                    id: 1,
-                    user: '系统管理员',
-                    type: 'admin',
-                    action: '更新了《咒术回战 第二季》的播放源信息',
-                    time: '2024-04-15 10:30:25',
-                    module: '内容管理',
-                    ip: '192.168.1.100'
-                },
-                {
-                    id: 2,
-                    user: '王梓晨',
-                    type: 'user',
-                    action: '发表了《进击的巨人》的评论',
-                    time: '2024-04-15 09:45:18',
-                    module: '用户互动',
-                    ip: '192.168.1.101'
-                },
-                {
-                    id: 3,
-                    user: '系统管理员',
-                    type: 'admin',
-                    action: '删除了违规用户评论',
-                    time: '2024-04-15 09:12:33',
-                    module: '内容审核',
-                    ip: '192.168.1.100'
-                },
-                {
-                    id: 4,
-                    user: '林雨晴',
-                    type: 'user',
-                    action: '收藏了《间谍过家家》',
-                    time: '2024-04-15 08:55:21',
-                    module: '用户行为',
-                    ip: '192.168.1.102'
-                },
-                {
-                    id: 5,
-                    user: '系统管理员',
-                    type: 'admin',
-                    action: '新增了《海贼王》最新话章节',
-                    time: '2024-04-15 08:30:15',
-                    module: '内容管理',
-                    ip: '192.168.1.100'
-                },
-                {
-                    id: 6,
-                    user: '张伟',
-                    type: 'user',
-                    action: '评分了《鬼灭之刃》',
-                    time: '2024-04-14 22:15:42',
-                    module: '用户评分',
-                    ip: '192.168.1.103'
-                },
-                {
-                    id: 7,
-                    user: '系统管理员',
-                    type: 'admin',
-                    action: '更新了《鬼灭之刃》的剧集信息',
-                    time: '2024-04-14 18:20:11',
-                    module: '内容管理',
-                    ip: '192.168.1.100'
-                },
-                {
-                    id: 8,
-                    user: '李明',
-                    type: 'user',
-                    action: '分享了《间谍过家家》到微信',
-                    time: '2024-04-14 17:05:33',
-                    module: '社交分享',
-                    ip: '192.168.1.104'
-                },
-                {
-                    id: 9,
-                    user: '系统管理员',
-                    type: 'admin',
-                    action: '封禁了违规用户账号',
-                    time: '2024-04-14 16:40:27',
-                    module: '用户管理',
-                    ip: '192.168.1.100'
-                },
-                {
-                    id: 10,
-                    user: '赵芳',
-                    type: 'user',
-                    action: '订阅了《海贼王》的更新提醒',
-                    time: '2024-04-14 15:22:38',
-                    module: '订阅管理',
-                    ip: '192.168.1.105'
-                },
-                {
-                    id: 11,
-                    user: '系统管理员',
-                    type: 'admin',
-                    action: '发布了系统公告',
-                    time: '2024-04-14 14:10:55',
-                    module: '系统管理',
-                    ip: '192.168.1.100'
-                },
-                {
-                    id: 12,
-                    user: '陈晓',
-                    type: 'user',
-                    action: '上传了头像',
-                    time: '2024-04-14 13:05:22',
-                    module: '用户资料',
-                    ip: '192.168.1.106'
-                }
-            ]
+            logs: []
         }
     },
 
     computed: {
-        // 总日志数
+        // 获取所有日志的数量
         total() {
-            return this.logs.length;
+            return this.totalRecords;
         },
 
         // 管理员操作数量
         adminCount() {
-            return this.logs.filter(log => log.type === 'admin').length;
+            return this.logs.filter(log => log.user_type === 'admin').length;
         },
 
-        // 用户操作数量
-        userCount() {
-            return this.logs.filter(log => log.type === 'user').length;
+        // 普通用户操作数量
+        regularCount() {
+            return this.logs.filter(log => log.user_type === 'regular').length;
         },
 
-        // 今日操作数量（假设是时间包含今天日期的）
-        todayCount() {
-            const today = new Date().toISOString().split('T')[0]; // 获取今天的日期部分
-            return this.logs.filter(log => log.time.includes(today)).length || 5; // 如果没有今天的数据，显示5
+        // 体验用户操作数量
+        trialCount() {
+            return this.logs.filter(log => log.user_type === 'trial').length;
         },
 
         // 所有模块列表
@@ -328,51 +237,76 @@ export default {
             return Array.from(moduleSet);
         },
 
-        // 筛选后的日志
-        filteredLogs() {
-            let result = [...this.logs];
-
-            // 按类型筛选
-            if (this.filterType) {
-                result = result.filter(log => log.type === this.filterType);
-            }
-
-            // 按模块筛选
-            if (this.filterModule) {
-                result = result.filter(log => log.module === this.filterModule);
-            }
-
-            // 搜索查询
-            if (this.searchQuery) {
-                const query = this.searchQuery.toLowerCase();
-                result = result.filter(log =>
-                    log.user.toLowerCase().includes(query) ||
-                    log.action.toLowerCase().includes(query) ||
-                    log.module.toLowerCase().includes(query)
-                );
-            }
-
-            return result;
-        },
-
-        // 当前页显示的日志
+        // 当前显示的日志
         displayLogs() {
-            const start = (this.currentPage - 1) * this.pageSize;
-            const end = start + this.pageSize;
-            return this.filteredLogs.slice(start, end);
+            return this.logs;
         }
     },
 
     methods: {
+        async fetchLogs() {
+            try {
+                this.loading = true;
+                const response = await axios.get('/api/userActionLogs', {
+                    params: {
+                        page: this.currentPage,
+                        page_size: this.pageSize,
+                        user_type: this.filterType || undefined,
+                        module: this.filterModule || undefined,
+                        search: this.searchQuery || undefined
+                    }
+                });
+
+                if (response.data.code === 200) {
+                    this.logs = response.data.userActionLogs;
+                    this.totalRecords = response.data.total || response.data.userActionLogs.length;
+                } else {
+                    throw new Error(response.data.message || '获取操作日志失败');
+                }
+            } catch (error) {
+                ElMessage.error('获取操作日志失败：' + error);
+            } finally {
+                this.loading = false;
+            }
+        },
+
         handleSearch() {
             this.currentPage = 1;
-            ElMessage({
-                message: '搜索完成',
-                type: 'success'
-            });
+            this.fetchLogs();
         },
 
         handleExport() {
+            // 生成导出文件名
+            const timestamp = new Date().toISOString().replace(/:/g, '-').substring(0, 19);
+            const fileName = `操作日志_${timestamp}.csv`;
+
+            // 构建CSV内容
+            let csvContent = "ID,用户名,用户类型,操作内容,操作时间,模块\n";
+
+            this.logs.forEach(log => {
+                const row = [
+                    log.id,
+                    log.user_name,
+                    log.user_type === 'admin' ? '管理员' :
+                        log.user_type === 'regular' ? '普通用户' : '体验用户',
+                    log.action.replace(/,/g, '，'), // 替换英文逗号避免CSV格式问题
+                    this.formatFullTime(log.time),
+                    log.module
+                ];
+                csvContent += row.join(',') + "\n";
+            });
+
+            // 创建下载链接
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', fileName);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
             ElMessage({
                 message: '日志导出成功',
                 type: 'success'
@@ -386,11 +320,42 @@ export default {
 
         handleSizeChange(val) {
             this.pageSize = val;
+            this.fetchLogs();
         },
 
         handleCurrentChange(val) {
             this.currentPage = val;
+            this.fetchLogs();
+        },
+
+        // 将ISO时间格式转换为相对时间
+        formatTime(isoTime) {
+            const now = new Date();
+            const logTime = new Date(isoTime);
+            const diff = Math.floor((now.getTime() - logTime.getTime()) / 1000); // 差异（秒）
+
+            if (diff < 60) {
+                return '刚刚';
+            } else if (diff < 3600) {
+                return Math.floor(diff / 60) + '分钟前';
+            } else if (diff < 86400) {
+                return Math.floor(diff / 3600) + '小时前';
+            } else if (diff < 2592000) {
+                return Math.floor(diff / 86400) + '天前';
+            } else {
+                return logTime.toLocaleDateString();
+            }
+        },
+
+        // 将ISO时间格式转换为完整时间
+        formatFullTime(isoTime) {
+            const date = new Date(isoTime);
+            return date.toLocaleString();
         }
+    },
+
+    created() {
+        this.fetchLogs();
     }
 }
 </script>

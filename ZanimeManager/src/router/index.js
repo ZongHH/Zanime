@@ -3,6 +3,7 @@ import Main from '@/views/Main.vue'
 import Users from '@/views/Users.vue'
 import Login from '@/views/Login.vue'
 import OperationLogs from '../views/OperationLogs.vue'
+import NewAnime from '../views/NewAnime.vue'
 
 const routes = [
     {
@@ -39,6 +40,14 @@ const routes = [
         component: OperationLogs,
         meta: {
             title: '详细操作日志'
+        }
+    },
+    {
+        path: '/new-anime',
+        name: 'NewAnime',
+        component: NewAnime,
+        meta: {
+            title: '最新动漫'
         }
     }
 ]

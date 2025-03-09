@@ -68,13 +68,6 @@ export default {
   },
 
   created() {
-    // 检查登录状态并初始化WebSocket
-    const isLoggedIn = localStorage.getItem('isLoggedIn')
-    if (isLoggedIn === 'true') {
-      const wsUrl = 'ws://127.0.0.1:9999/ws'
-      this.$store.dispatch('initWebSocket', wsUrl)
-    }
-
     // 根据当前路由设置活跃菜单
     const currentPath = this.$router.currentRoute.value.path;
     const routes = ['/', '/content', '/users', '/statistics', '/settings'];
