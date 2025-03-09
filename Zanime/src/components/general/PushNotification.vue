@@ -61,7 +61,7 @@ export default {
     },
     duration: {
       type: Number,
-      default: 5000, // 自动关闭时间 (毫秒)
+      default: 10000, // 自动关闭时间 (毫秒)
     },
     showProgressBar: {
       type: Boolean,
@@ -103,18 +103,18 @@ export default {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  width: 340px;
-  background-color: #1e1e2f;
-  border-radius: 16px;
+  width: 320px;
+  background-color: #ffffff;
+  border-radius: 10px;
   overflow: hidden;
   z-index: 1000;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 1px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 0 2px 5px rgba(0, 0, 0, 0.03);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #333333;
+  border-left: 3px solid #666666;
+  animation: elegant-fade-in 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
   backdrop-filter: blur(10px);
-  font-family: 'Poppins', Arial, sans-serif;
-  color: #f4f4f9;
-  border-left: 4px solid #7c4dff;
-  animation: pop-in 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-  transform-origin: bottom right;
+  transform-origin: center;
 }
 
 /* 根据位置设置位置 */
@@ -123,7 +123,6 @@ export default {
   right: 20px;
   bottom: auto;
   left: auto;
-  transform-origin: top right;
 }
 
 .push-notification[class*="top-left"] {
@@ -131,7 +130,6 @@ export default {
   left: 20px;
   bottom: auto;
   right: auto;
-  transform-origin: top left;
 }
 
 .push-notification[class*="bottom-left"] {
@@ -139,65 +137,78 @@ export default {
   left: 20px;
   top: auto;
   right: auto;
-  transform-origin: bottom left;
 }
 
 /* 不同类型的样式 */
 .push-notification.like {
-  border-left-color: #ff5252;
-  /* 红色系 - 点赞 */
+  border-left-color: #f44336;
+  box-shadow: 0 10px 25px rgba(244, 67, 54, 0.08), 0 2px 5px rgba(244, 67, 54, 0.03);
 }
 
 .push-notification.comment {
   border-left-color: #2196f3;
-  /* 蓝色系 - 评论 */
+  box-shadow: 0 10px 25px rgba(33, 150, 243, 0.08), 0 2px 5px rgba(33, 150, 243, 0.03);
 }
 
 .push-notification.reply {
   border-left-color: #03a9f4;
-  /* 浅蓝色系 - 回复 */
+  box-shadow: 0 10px 25px rgba(3, 169, 244, 0.08), 0 2px 5px rgba(3, 169, 244, 0.03);
 }
 
 .push-notification.favorite {
   border-left-color: #ff9800;
-  /* 橙色系 - 收藏 */
+  box-shadow: 0 10px 25px rgba(255, 152, 0, 0.08), 0 2px 5px rgba(255, 152, 0, 0.03);
 }
 
 .push-notification.follow {
-  border-left-color: #7c4dff;
-  /* 紫色系 - 关注 */
+  border-left-color: #673ab7;
+  box-shadow: 0 10px 25px rgba(103, 58, 183, 0.08), 0 2px 5px rgba(103, 58, 183, 0.03);
 }
 
 .push-notification.system {
-  border-left-color: #f44336;
-  /* 红色系 - 系统消息 */
+  border-left-color: #607d8b;
+  box-shadow: 0 10px 25px rgba(96, 125, 139, 0.08), 0 2px 5px rgba(96, 125, 139, 0.03);
 }
 
-/* 下面是原有的类型样式，可以考虑移除或保留作为备用 */
 .push-notification.success {
   border-left-color: #4caf50;
+  box-shadow: 0 10px 25px rgba(76, 175, 80, 0.08), 0 2px 5px rgba(76, 175, 80, 0.03);
 }
 
 .push-notification.error {
   border-left-color: #f44336;
+  box-shadow: 0 10px 25px rgba(244, 67, 54, 0.08), 0 2px 5px rgba(244, 67, 54, 0.03);
 }
 
 .push-notification.warning {
   border-left-color: #ff9800;
+  box-shadow: 0 10px 25px rgba(255, 152, 0, 0.08), 0 2px 5px rgba(255, 152, 0, 0.03);
 }
 
 .push-notification.info {
   border-left-color: #2196f3;
+  box-shadow: 0 10px 25px rgba(33, 150, 243, 0.08), 0 2px 5px rgba(33, 150, 243, 0.03);
 }
 
 .push-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(30, 30, 47, 0.95);
-  padding: 16px;
-  font-size: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 14px 18px;
+  font-size: 15px;
+  background-color: #fafafa;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  position: relative;
+}
+
+.push-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.01));
 }
 
 .icon-title {
@@ -210,55 +221,97 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: rgba(102, 102, 102, 0.08);
+  transition: transform 0.3s ease;
+}
+
+.push-notification:hover .notification-icon {
+  transform: scale(1.05);
 }
 
 .notification-icon svg {
-  fill: #7c4dff;
-  width: 24px;
-  height: 24px;
+  fill: #666666;
+  width: 18px;
+  height: 18px;
+}
+
+.like .notification-icon {
+  background-color: rgba(244, 67, 54, 0.08);
 }
 
 .like .notification-icon svg {
-  fill: #ff5252;
-  /* 红色系 - 点赞 */
+  fill: #f44336;
+}
+
+.comment .notification-icon {
+  background-color: rgba(33, 150, 243, 0.08);
 }
 
 .comment .notification-icon svg {
   fill: #2196f3;
-  /* 蓝色系 - 评论 */
+}
+
+.reply .notification-icon {
+  background-color: rgba(3, 169, 244, 0.08);
 }
 
 .reply .notification-icon svg {
   fill: #03a9f4;
-  /* 浅蓝色系 - 回复 */
+}
+
+.favorite .notification-icon {
+  background-color: rgba(255, 152, 0, 0.08);
 }
 
 .favorite .notification-icon svg {
   fill: #ff9800;
-  /* 橙色系 - 收藏 */
+}
+
+.follow .notification-icon {
+  background-color: rgba(103, 58, 183, 0.08);
 }
 
 .follow .notification-icon svg {
-  fill: #7c4dff;
-  /* 紫色系 - 关注 */
+  fill: #673ab7;
+}
+
+.system .notification-icon {
+  background-color: rgba(96, 125, 139, 0.08);
 }
 
 .system .notification-icon svg {
-  fill: #f44336;
-  /* 红色系 - 系统消息 */
+  fill: #607d8b;
 }
 
-/* 原有的类型样式 */
+.success .notification-icon {
+  background-color: rgba(76, 175, 80, 0.08);
+}
+
 .success .notification-icon svg {
   fill: #4caf50;
+}
+
+.error .notification-icon {
+  background-color: rgba(244, 67, 54, 0.08);
 }
 
 .error .notification-icon svg {
   fill: #f44336;
 }
 
+.warning .notification-icon {
+  background-color: rgba(255, 152, 0, 0.08);
+}
+
 .warning .notification-icon svg {
   fill: #ff9800;
+}
+
+.info .notification-icon {
+  background-color: rgba(33, 150, 243, 0.08);
 }
 
 .info .notification-icon svg {
@@ -266,46 +319,48 @@ export default {
 }
 
 .push-title {
-  font-weight: 600;
-  font-size: 16px;
-  letter-spacing: 0.5px;
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 0.2px;
+  color: #222222;
 }
 
 .close-btn {
   background: none;
   border: none;
-  color: #f4f4f9;
-  font-size: 22px;
+  color: #888888;
+  font-size: 18px;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s ease;
   width: 28px;
   height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
+  opacity: 0.6;
 }
 
 .close-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  transform: rotate(90deg);
+  color: #333333;
+  background-color: rgba(0, 0, 0, 0.05);
+  opacity: 1;
 }
 
 .push-body {
-  padding: 16px;
-  color: #d1c4e9;
+  padding: 16px 18px;
   font-size: 14px;
-  line-height: 1.6;
-  background-color: #2d2d3d;
-  border-top: 1px solid rgba(255, 255, 255, 0.02);
+  line-height: 1.5;
+  background-color: #ffffff;
+  color: #555555;
+  letter-spacing: 0.1px;
 }
 
 /* 进度条 */
 .progress-bar {
-  height: 4px;
+  height: 2px;
   width: 100%;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(0, 0, 0, 0.03);
   position: relative;
   overflow: hidden;
 }
@@ -313,59 +368,53 @@ export default {
 .progress {
   height: 100%;
   width: 100%;
-  background: linear-gradient(90deg, #7c4dff, #ff6e7f);
+  background: linear-gradient(90deg, rgba(102, 102, 102, 0.7), rgba(102, 102, 102, 0.9));
   transform-origin: left;
-  animation: progress-shrink 5000ms linear forwards;
+  animation: progress-shrink linear forwards;
+  border-radius: 2px;
 }
 
 .like .progress {
-  background: linear-gradient(90deg, #ff5252, #ff8a8a);
-  /* 红色渐变 - 点赞 */
+  background: linear-gradient(90deg, rgba(244, 67, 54, 0.7), rgba(244, 67, 54, 0.9));
 }
 
 .comment .progress {
-  background: linear-gradient(90deg, #2196f3, #64b5f6);
-  /* 蓝色渐变 - 评论 */
+  background: linear-gradient(90deg, rgba(33, 150, 243, 0.7), rgba(33, 150, 243, 0.9));
 }
 
 .reply .progress {
-  background: linear-gradient(90deg, #03a9f4, #4fc3f7);
-  /* 浅蓝色渐变 - 回复 */
+  background: linear-gradient(90deg, rgba(3, 169, 244, 0.7), rgba(3, 169, 244, 0.9));
 }
 
 .favorite .progress {
-  background: linear-gradient(90deg, #ff9800, #ffb74d);
-  /* 橙色渐变 - 收藏 */
+  background: linear-gradient(90deg, rgba(255, 152, 0, 0.7), rgba(255, 152, 0, 0.9));
 }
 
 .follow .progress {
-  background: linear-gradient(90deg, #7c4dff, #b388ff);
-  /* 紫色渐变 - 关注 */
+  background: linear-gradient(90deg, rgba(103, 58, 183, 0.7), rgba(103, 58, 183, 0.9));
 }
 
 .system .progress {
-  background: linear-gradient(90deg, #f44336, #ff8a80);
-  /* 红色渐变 - 系统消息 */
+  background: linear-gradient(90deg, rgba(96, 125, 139, 0.7), rgba(96, 125, 139, 0.9));
 }
 
-/* 原有样式 */
 .success .progress {
-  background: linear-gradient(90deg, #43a047, #7cb342);
+  background: linear-gradient(90deg, rgba(76, 175, 80, 0.7), rgba(76, 175, 80, 0.9));
 }
 
 .error .progress {
-  background: linear-gradient(90deg, #e53935, #ff5252);
+  background: linear-gradient(90deg, rgba(244, 67, 54, 0.7), rgba(244, 67, 54, 0.9));
 }
 
 .warning .progress {
-  background: linear-gradient(90deg, #ff9800, #ffb74d);
+  background: linear-gradient(90deg, rgba(255, 152, 0, 0.7), rgba(255, 152, 0, 0.9));
 }
 
 .info .progress {
-  background: linear-gradient(90deg, #2196f3, #64b5f6);
+  background: linear-gradient(90deg, rgba(33, 150, 243, 0.7), rgba(33, 150, 243, 0.9));
 }
 
-/* 改进的动画 */
+/* 优雅的动画 */
 @keyframes progress-shrink {
   from {
     transform: scaleX(1);
@@ -376,34 +425,38 @@ export default {
   }
 }
 
-@keyframes pop-in {
+@keyframes elegant-fade-in {
   0% {
     opacity: 0;
-    transform: scale(0.8) translateY(20px);
-  }
-
-  70% {
-    transform: scale(1.05);
+    transform: translateY(8px) scale(0.98);
   }
 
   100% {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
 /* 过渡动画 */
 .slide-fade-enter-active {
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 .slide-fade-leave-active {
-  transition: all 0.3s cubic-bezier(0.55, 0, 1, 0.45);
+  transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 .slide-fade-enter-from,
 .slide-fade-leave-to {
   opacity: 0;
-  transform: translateY(30px) scale(0.9);
+  transform: translateY(8px) scale(0.98);
+}
+
+/* 响应式调整 */
+@media (max-width: 480px) {
+  .push-notification {
+    width: calc(100% - 40px);
+    max-width: 320px;
+  }
 }
 </style>
