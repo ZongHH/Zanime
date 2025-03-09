@@ -131,10 +131,13 @@ func (r *UserRepositoryImpl) VerifyUser(ctx context.Context, user *entity.UserIn
 // - *entity.UserInfo: 用户信息
 // - error: 错误信息
 func (r *UserRepositoryImpl) GetUserByEmail(ctx context.Context, email string) (*entity.UserInfo, error) {
-	query := "SELECT * FROM user_infos WHERE email = ?"
+	query := `
+	SELECT user_id, username, email, password, account_type, status, full_name, gender, birth_date, signature, created_at, last_login_at, avatar_url 
+	FROM user_infos 
+	WHERE email = ?`
 	row := r.db.QueryRowContext(ctx, query, email)
 	var user entity.UserInfo
-	err := row.Scan(&user.UserID, &user.Username, &user.Email, &user.Password, &user.FullName, &user.Gender, &user.BirthDate, &user.CreatedAt, &user.LastLoginAt, &user.AvatarURL)
+	err := row.Scan(&user.UserID, &user.Username, &user.Email, &user.Password, &user.AccountType, &user.Status, &user.FullName, &user.Gender, &user.BirthDate, &user.Signature, &user.CreatedAt, &user.LastLoginAt, &user.AvatarURL)
 	if err != nil {
 		return nil, err
 	}
@@ -149,10 +152,13 @@ func (r *UserRepositoryImpl) GetUserByEmail(ctx context.Context, email string) (
 // - *entity.UserInfo: 用户信息
 // - error: 错误信息
 func (r *UserRepositoryImpl) GetUserByID(ctx context.Context, userID int) (*entity.UserInfo, error) {
-	query := "SELECT * FROM user_infos WHERE user_id = ?"
+	query := `
+	SELECT user_id, username, email, password, account_type, status, full_name, gender, birth_date, signature, created_at, last_login_at, avatar_url 
+	FROM user_infos 
+	WHERE user_id = ?`
 	row := r.db.QueryRowContext(ctx, query, userID)
 	var user entity.UserInfo
-	err := row.Scan(&user.UserID, &user.Username, &user.Email, &user.Password, &user.AvatarURL, &user.Signature, &user.FullName, &user.Gender, &user.BirthDate, &user.CreatedAt, &user.LastLoginAt, &user.Status)
+	err := row.Scan(&user.UserID, &user.Username, &user.Email, &user.Password, &user.AccountType, &user.Status, &user.FullName, &user.Gender, &user.BirthDate, &user.Signature, &user.CreatedAt, &user.LastLoginAt, &user.AvatarURL)
 	if err != nil {
 		return nil, err
 	}
