@@ -34,3 +34,19 @@ func (s *StatisticsHandler) GetStatisticsData(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, response)
 }
+
+func (s *StatisticsHandler) GetNewAnime(ctx *gin.Context) {
+	request := &request.NewAnimeRequest{}
+	if err := ctx.ShouldBind(request); err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	response, err := s.statisticsService.GetNewAnime(ctx, request)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, response)
+}

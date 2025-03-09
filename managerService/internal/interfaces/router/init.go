@@ -1,4 +1,4 @@
-package controller
+package router
 
 import (
 	"context"
@@ -26,14 +26,13 @@ func NewController(cfg *config.Config) *Controller {
 		},
 	}
 
-	controller.setAPIRouters()
-
 	return controller
 }
 
 func (c *Controller) Run() {
 	// 使用 goroutine 启动服务器
 	go func() {
+		log.Printf("Gin 服务监听: %s\n", c.srv.Addr)
 		if err := c.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("启动 Gin 服务失败: %v\n", err)
 		}
@@ -51,4 +50,24 @@ func (c *Controller) Shutdown() {
 	}
 
 	log.Println("成功关闭 Gin 服务")
+}
+
+func (c *Controller) GET(path string, handlers ...gin.HandlerFunc) {
+	c.engine.GET(path, handlers...)
+}
+
+func (c *Controller) POST(path string, handlers ...gin.HandlerFunc) {
+	c.engine.POST(path, handlers...)
+}
+
+func (c *Controller) PUT(path string, handlers ...gin.HandlerFunc) {
+	c.engine.PUT(path, handlers...)
+}
+
+func (c *Controller) DELETE(path string, handlers ...gin.HandlerFunc) {
+	c.engine.DELETE(path, handlers...)
+}
+
+func (c *Controller) PATCH(path string, handlers ...gin.HandlerFunc) {
+	c.engine.PATCH(path, handlers...)
 }

@@ -1,53 +1,25 @@
 package main
 
 import (
-	"log"
-	"managerService/controller"
-	"managerService/dao/mysql"
-	"managerService/pkg/config"
-	"managerService/service"
+	"managerService/internal/bootstrap"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
-func Init() {
-	config.ConfigInit()
-
-	// 初始化数据库连接
-	dbConfig := &mysql.Config{
-		Username: "root",
-		Password: "123456",
-		Host:     "localhost",
-		Port:     3306,
-		Database: "anime",
-	}
-
-	if err := mysql.InitDB(dbConfig); err != nil {
-		log.Fatal(err)
-	}
-
-	service.Init()
-}
-
-func Close() {
-	service.Close()
-	controller.Close()
-	mysql.Close()
-}
-
 func main() {
-	Init()
+	container := bootstrap.LoadContainer("../configs/config.yaml")
+	bootstrap := bootstrap.NewBootstrap(container)
+	bootstrap.Run()
 
-	// 启动 HTTP 服务
-	controller.Init()
-
-	// 创建信号接收通道
+	// 创建一个信号通道，用于接收操作系统的终止信号
 	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-
-	// 等待中断信号
+	// 注册多种系统信号，包括中断信号(SIGINT)、终止信号(SIGTERM)、
+	// 挂起信号(SIGHUP)、退出信号(SIGQUIT)和杀死信号(SIGKILL)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGKILL)
+	// 阻塞等待信号，当接收到上述任一信号时继续执行
 	<-quit
+	// 收到信号后，程序将继续执行并调用 bootstrap.Shutdown() 进行优雅关闭
 
-	Close()
+	bootstrap.Shutdown()
 }

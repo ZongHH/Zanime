@@ -2,7 +2,6 @@ package nsqpool
 
 import (
 	"fmt"
-	"managerService/pkg/config"
 
 	"sync"
 
@@ -94,14 +93,10 @@ func (p *ConsumerPool) RegisterCallbackFunc(callback func(msg []byte) error) {
 }
 
 func (p *ConsumerPool) Start() error {
-	nsqdaddr, err := config.GetHostAndPort("nsq")
-	if err != nil {
-		return err
-	}
 	for _, consumer := range p.consumers {
 		consumer.AddHandler(nsq.HandlerFunc(p.HandleMessage))
 
-		if err := consumer.ConnectToNSQD(nsqdaddr); err != nil {
+		if err := consumer.ConnectToNSQD("127.0.0.1:5150"); err != nil {
 			return err
 		}
 	}

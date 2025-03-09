@@ -112,3 +112,22 @@ func (s *StatisticsServiceImpl) GetStatisticsData(ctx context.Context, request *
 		return nil, err
 	}
 }
+
+func (s *StatisticsServiceImpl) GetNewAnime(ctx context.Context, request *request.NewAnimeRequest) (*response.NewAnimeResponse, error) {
+	animes, err := s.statisticsRepo.GetNewAnime(ctx, request.Page, request.PageSize)
+	if err != nil {
+		return nil, fmt.Errorf("获取最新上线的动漫失败: %v", err)
+	}
+	animeItems := make([]*response.AnimeItem, len(animes))
+	for i, anime := range animes {
+		animeItems[i] = &response.AnimeItem{
+			Title:      anime.VideoName,
+			Image:      anime.CoverImageURL,
+			UpdateTime: anime.CreatedAt,
+		}
+	}
+	return &response.NewAnimeResponse{
+		Code:   200,
+		Animes: animeItems,
+	}, nil
+}
