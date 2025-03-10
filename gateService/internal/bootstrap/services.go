@@ -69,6 +69,7 @@ type services struct {
 func initServices(cfg *config.Config, bases *bases, repos *repositories) *services {
 	return &services{
 		UserService: serviceImpl.NewUserServiceImpl(
+			&cfg.JWT.TestAccount,  // JWT配置
 			&cfg.Storage,          // 文件存储配置
 			repos.UserRepo,        // 用户数据仓储
 			repos.PostRepo,        // 帖子数据仓储

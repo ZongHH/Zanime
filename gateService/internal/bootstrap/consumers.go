@@ -15,7 +15,7 @@ func initConsumers(cfg *config.Config, bases *bases, repositories *repositories)
 	return &consumers{
 		OrderConsumer:   consumer.NewOrderConsumer(repositories.OrderRepo),
 		CommentConsumer: consumer.NewCommentConsumer(repositories.PostRepo, repositories.PostCommentRepo, repositories.UserRepo, bases.WebSocketManager),
-		AccountConsumer: consumer.NewAccountConsumer(&cfg.JWT, repositories.UserRepo),
+		AccountConsumer: consumer.NewAccountConsumer(repositories.UserRepo),
 	}
 }
 

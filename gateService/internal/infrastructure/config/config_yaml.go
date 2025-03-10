@@ -117,11 +117,15 @@ type JWTConfig struct {
 	AccessToken  JWTTokenConfig `yaml:"access_token"`
 	RefreshToken JWTTokenConfig `yaml:"refresh_token"`
 	TokenType    string         `yaml:"token_type"`
+	TestAccount  JWTTokenConfig `yaml:"test_account"`
 }
 
 type JWTTokenConfig struct {
 	ExpireTime     time.Duration `yaml:"expire_time"`
 	MaxRefreshTime time.Duration `yaml:"max_refresh_time,omitempty"`
+	MaxActiveTime  time.Duration `yaml:"max_active_time,omitempty"`
+	RedisPrefix    string        `yaml:"redis_prefix,omitempty"`
+	RegInterval    time.Duration `yaml:"reg_interval,omitempty"`
 }
 
 // CookieConfig Cookie配置
@@ -255,7 +259,7 @@ func LoadConfig(path string) (*Config, error) {
 		"Redis连接: %s:%d DB=%d 密码=%t 池: 大小%d/空闲%d 超时: 连接%v/读%v/写%v/池%v/空闲%v\n"+
 		"NSQ配置: 节点%s:%d 生产者池=%d 消费者: 最大处理%d/并发%d/最大尝试%d\n"+
 		"目标服务: 爬虫[启用=%t %s:%d] 推荐[启用=%t %s:%d]\n"+
-		"JWT配置: 密钥长度=%d 签发者=%s 访问令牌[过期%v/最大刷新%v] 刷新令牌[过期%v] 类型=%s\n"+
+		"JWT配置: 密钥长度=%d 签发者=%s 访问令牌[过期%v/最大刷新%v] 刷新令牌[过期%v] 类型=%s 体验用户[过期%v/最长活跃%v/redis前缀%s/获取间隔%v]\n"+
 		"Cookie配置: 域=%s 路径=%s 最大年龄=%d 安全=%t HTTPOnly=%t SameSite=%s\n"+
 		"文件存储配置: 头像[路径=%s 最大大小=%d 类型%v] 帖子[路径=%s 最大大小=%d 类型%v 最大文件数=%d]\n"+
 		"安全配置: CORS[源%v 方法%v 头%v 暴露头%v 凭证=%t 缓存%v] CSRF[启用=%t 排除%v] XSS[启用=%t] 限流[启用=%t %d/s]",
@@ -273,7 +277,8 @@ func LoadConfig(path string) (*Config, error) {
 		config.TargetGrpcServers["scrape_service"].Enabled, config.TargetGrpcServers["scrape_service"].Endpoints[0].Address, config.TargetGrpcServers["scrape_service"].Endpoints[0].Port,
 		config.TargetGrpcServers["recommend_service"].Enabled, config.TargetGrpcServers["recommend_service"].Endpoints[0].Address, config.TargetGrpcServers["recommend_service"].Endpoints[0].Port,
 		len(config.JWT.SecretKey), config.JWT.Issuer, config.JWT.AccessToken.ExpireTime, config.JWT.AccessToken.MaxRefreshTime,
-		config.JWT.RefreshToken.ExpireTime, config.JWT.TokenType,
+		config.JWT.RefreshToken.ExpireTime, config.JWT.TokenType, config.JWT.TestAccount.ExpireTime, config.JWT.TestAccount.MaxActiveTime,
+		config.JWT.TestAccount.RedisPrefix, config.JWT.TestAccount.RegInterval,
 		config.Cookie.Domain, config.Cookie.Path, config.Cookie.MaxAge, config.Cookie.Secure, config.Cookie.HTTPOnly, config.Cookie.SameSite,
 		config.Storage.Avatar.Path, config.Storage.Avatar.MaxSize, config.Storage.Avatar.AllowedTypes,
 		config.Storage.Post.Path, config.Storage.Post.MaxSize, config.Storage.Post.AllowedTypes, config.Storage.Post.MaxFiles,

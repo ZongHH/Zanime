@@ -69,8 +69,8 @@ func (r *UserRepositoryImpl) CreateUser(ctx context.Context, user *entity.UserIn
 // 返回:
 // - error: 错误信息
 func (r *UserRepositoryImpl) CreateUserWithTx(ctx context.Context, tx *sql.Tx, user *entity.UserInfo) error {
-	query := "INSERT INTO user_infos (username, email, password, avatar_url) VALUES (?, ?, ?, ?)"
-	result, err := tx.ExecContext(ctx, query, user.Username, user.Email, user.Password, user.AvatarURL)
+	query := "INSERT INTO user_infos (username, email, password, account_type, avatar_url) VALUES (?, ?, ?, ?, ?)"
+	result, err := tx.ExecContext(ctx, query, user.Username, user.Email, user.Password, user.AccountType, user.AvatarURL)
 	if err != nil {
 		return err
 	}
@@ -111,9 +111,9 @@ func (r *UserRepositoryImpl) IsExistUser(ctx context.Context, email string) (boo
 // - bool: 验证是否通过
 // - error: 错误信息
 func (r *UserRepositoryImpl) VerifyUser(ctx context.Context, user *entity.UserInfo) (bool, error) {
-	query := "SELECT user_id, username, avatar_url, full_name, gender, birth_date FROM user_infos WHERE email = ? AND password = ? AND status = 1"
+	query := "SELECT user_id, username, avatar_url, full_name, gender, birth_date, account_type FROM user_infos WHERE email = ? AND password = ? AND status = 1"
 	row := r.db.QueryRowContext(ctx, query, user.Email, user.Password)
-	err := row.Scan(&user.UserID, &user.Username, &user.AvatarURL, &user.FullName, &user.Gender, &user.BirthDate)
+	err := row.Scan(&user.UserID, &user.Username, &user.AvatarURL, &user.FullName, &user.Gender, &user.BirthDate, &user.AccountType)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return false, nil

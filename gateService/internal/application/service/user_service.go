@@ -25,15 +25,8 @@ import (
 	"github.com/google/uuid"
 )
 
-// accountConfig 账户相关配置
-type accountConfig struct {
-	regInterval time.Duration // 注册间隔时间,用于限制注册频率
-	ttl         time.Duration // 账户生存时间,用于临时账户过期控制
-	redisPrefix string        // redis缓存前缀
-}
-
 type UserServiceImpl struct {
-	accountConfig         *accountConfig
+	accountConfig         *config.JWTTokenConfig
 	storageConfig         *config.StorageConfig
 	userRepository        repository.UserRepository
 	postRepository        repository.PostRepository
@@ -44,6 +37,7 @@ type UserServiceImpl struct {
 }
 
 func NewUserServiceImpl(
+	accountConfig *config.JWTTokenConfig,
 	storageConfig *config.StorageConfig,
 	userRepository repository.UserRepository,
 	postRepository repository.PostRepository,
@@ -53,11 +47,7 @@ func NewUserServiceImpl(
 	producerPool *nsqpool.ProducerPool,
 ) *UserServiceImpl {
 	return &UserServiceImpl{
-		accountConfig: &accountConfig{
-			regInterval: 24 * time.Hour,
-			ttl:         1 * time.Hour,
-			redisPrefix: "test_account:exist:",
-		},
+		accountConfig:         accountConfig,
 		storageConfig:         storageConfig,
 		userRepository:        userRepository,
 		postRepository:        postRepository,
@@ -148,13 +138,6 @@ func (s *UserServiceImpl) VerifyUser(ctx context.Context, user *dto.VerifyUserRe
 		userInfo := c.MustGet("UserInfo").(*auth.CustomClaims).UserInfo
 		if userInfo.UserID != user.UserID {
 			return nil, fmt.Errorf("用户ID不匹配")
-		}
-		exist, _, err := s.userRepository.CheckInRedis(ctx, "test_account:deleted:"+strconv.Itoa(userInfo.UserID))
-		if err != nil {
-			return nil, fmt.Errorf("检查体验用户账号是否已失效失败: %v", err)
-		}
-		if exist {
-			return nil, fmt.Errorf("体验用户账号已失效")
 		}
 	} else {
 		return nil, fmt.Errorf("context is not a gin context")
@@ -400,7 +383,7 @@ func (s *UserServiceImpl) GetUserNotifications(ctx context.Context, user *dto.Us
 }
 
 func (s *UserServiceImpl) GetTestAccount(ctx context.Context, user *dto.TestAccountRequest) (*dto.TestAccountResponse, error) {
-	exist, ttl, err := s.userRepository.CheckInRedis(ctx, s.accountConfig.redisPrefix+user.UserIP)
+	exist, ttl, err := s.userRepository.CheckInRedis(ctx, s.accountConfig.RedisPrefix+user.UserIP)
 	if err != nil {
 		return nil, fmt.Errorf("检查IP是否已经获取过体验账号失败: %v", err)
 	}
@@ -413,10 +396,11 @@ func (s *UserServiceImpl) GetTestAccount(ctx context.Context, user *dto.TestAcco
 	timestamp := strconv.FormatInt(time.Now().UnixNano(), 10)
 	timestamp = timestamp[len(timestamp)-4:]
 	testAccount := &entity.UserInfo{
-		Username:  fmt.Sprintf("%s_%s", uuid, timestamp),
-		Email:     fmt.Sprintf("%s_%s@example.com", uuid, timestamp),
-		Password:  timestamp + uuid,
-		AvatarURL: "/src/static/picture/Ellipse_3.png",
+		Username:    fmt.Sprintf("%s_%s", uuid, timestamp),
+		Email:       fmt.Sprintf("%s_%s@example.com", uuid, timestamp),
+		Password:    timestamp + uuid,
+		AccountType: "trial",
+		AvatarURL:   "/src/static/picture/Ellipse_3.png",
 	}
 
 	tx, err := s.userRepository.BeginTx(ctx)
@@ -430,12 +414,12 @@ func (s *UserServiceImpl) GetTestAccount(ctx context.Context, user *dto.TestAcco
 		return nil, fmt.Errorf("创建体验账号失败: %v", err)
 	}
 
-	err = s.producerPool.DeferredPublish(ctx, "test_account_queue", s.accountConfig.ttl, []byte(fmt.Sprintf("%d", testAccount.UserID)))
+	err = s.producerPool.DeferredPublish(ctx, "test_account_queue", s.accountConfig.MaxActiveTime, []byte(fmt.Sprintf("%d", testAccount.UserID)))
 	if err != nil {
 		return nil, fmt.Errorf("发送体验账号到消息队列失败: %v", err)
 	}
 
-	err = s.userRepository.SetInRedis(ctx, s.accountConfig.redisPrefix+user.UserIP, testAccount.UserID, s.accountConfig.regInterval)
+	err = s.userRepository.SetInRedis(ctx, s.accountConfig.RedisPrefix+user.UserIP, testAccount.UserID, s.accountConfig.RegInterval)
 	if err != nil {
 		return nil, fmt.Errorf("设置IP获取体验账号失败: %v", err)
 	}

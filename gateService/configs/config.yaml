@@ -127,6 +127,12 @@ jwt:
   refresh_token:
     expire_time: 168h                 # 刷新令牌过期时间(7天)
   token_type: "Bearer"                # 令牌类型
+  # 体验用户令牌设置
+  test_account:
+    expire_time: 1h                  # 体验用户令牌过期时间
+    max_active_time: 1h              # 体验账号最长活跃时间
+    redis_prefix: "test_account:exist:" # redis缓存前缀
+    reg_interval: 24h               # 获取体验账号间隔时间
 
 # Cookie配置
 cookie:

@@ -35,7 +35,7 @@ func NewContainer(configPath string) *Container {
 	consumers := initConsumers(cfg, bases, repositories)
 
 	// 初始化接口层
-	interfaces := initInterfaces(cfg, bases, repositories, services)
+	interfaces := initInterfaces(cfg, bases, services)
 
 	return &Container{
 		Config:       cfg,

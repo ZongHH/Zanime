@@ -2,7 +2,6 @@ package router
 
 import (
 	"context"
-	"gateService/internal/domain/repository"
 	"gateService/internal/domain/service"
 	"gateService/internal/infrastructure/config"
 	"gateService/internal/infrastructure/middleware/auth"
@@ -35,8 +34,6 @@ type Controller struct {
 	jwtManager    *auth.JWTManager    // JWT令牌管理器，负责令牌的生成与验证
 	cookieManager *auth.CookieManager // Cookie管理器，处理Cookie的加密和验证
 
-	userRepository repository.UserRepository // 用户仓储实例
-
 	// 业务模块处理器（接口处理层）
 	progressHandler *handler.ProgressHandler // 用户观看进度处理器
 	postHandler     *handler.PostHandler     // 帖子管理处理器
@@ -60,7 +57,6 @@ type Controller struct {
 //   - cfg: 应用配置，包含所有运行时配置参数
 //   - jwtManager: JWT认证管理器实例
 //   - cookieManager: Cookie管理实例
-//   - userRepository: 用户仓储实例
 //   - progressService ~ websocketService: 各业务领域服务实现
 //
 // 返回值说明：
@@ -69,7 +65,6 @@ func NewController(
 	cfg *config.Config,
 	jwtManager *auth.JWTManager,
 	cookieManager *auth.CookieManager,
-	userRepository repository.UserRepository,
 	progressService service.ProgressService,
 	postService service.PostService,
 	commentService service.CommentService,
@@ -85,7 +80,6 @@ func NewController(
 		engine:           gin.Default(), // 使用Gin默认配置初始化路由引擎
 		jwtManager:       jwtManager,
 		cookieManager:    cookieManager,
-		userRepository:   userRepository,
 		progressHandler:  handler.NewProgressHandler(progressService),   // 初始化进度处理器
 		postHandler:      handler.NewPostHandler(postService),           // 初始化帖子处理器
 		commentHandler:   handler.NewCommentHandler(commentService),     // 初始化评论处理器

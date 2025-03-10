@@ -51,15 +51,23 @@ func DefaultJWTConfig() *config.JWTConfig {
 // GenerateToken 生成JWT令牌
 func (m *JWTManager) GenerateToken(userInfo *entity.UserInfo) (string, error) {
 	now := time.Now()
+	var expireTime time.Duration
+
+	if userInfo.AccountType == "regular" {
+		expireTime = m.config.AccessToken.ExpireTime
+	} else if userInfo.AccountType == "trial" {
+		expireTime = m.config.TestAccount.ExpireTime
+	}
+
 	claims := CustomClaims{
 		UserInfo:  userInfo,           // 用户信息
 		TokenType: m.config.TokenType, // 令牌类型
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    m.config.Issuer,                                              // 令牌签发者
-			Subject:   fmt.Sprintf("user_%d", userInfo.UserID),                      // 令牌主题,包含用户ID
-			IssuedAt:  jwt.NewNumericDate(now),                                      // 令牌签发时间
-			ExpiresAt: jwt.NewNumericDate(now.Add(m.config.AccessToken.ExpireTime)), // 令牌过期时间
-			NotBefore: jwt.NewNumericDate(now),                                      // 令牌生效时间
+			Issuer:    m.config.Issuer,                         // 令牌签发者
+			Subject:   fmt.Sprintf("user_%d", userInfo.UserID), // 令牌主题,包含用户ID
+			IssuedAt:  jwt.NewNumericDate(now),                 // 令牌签发时间
+			ExpiresAt: jwt.NewNumericDate(now.Add(expireTime)), // 令牌过期时间
+			NotBefore: jwt.NewNumericDate(now),                 // 令牌生效时间
 		},
 	}
 

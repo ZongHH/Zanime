@@ -4,21 +4,18 @@ import (
 	"context"
 	"fmt"
 	"gateService/internal/domain/repository"
-	"gateService/internal/infrastructure/config"
 	"gateService/pkg/mq/nsqpool"
 	"log"
 	"strconv"
 )
 
 type AccountConsumer struct {
-	jwtConfig           *config.JWTConfig
 	userRepository      repository.UserRepository
 	accountConsumerPool *nsqpool.ConsumerPool
 }
 
-func NewAccountConsumer(jwtConfig *config.JWTConfig, userRepository repository.UserRepository) *AccountConsumer {
+func NewAccountConsumer(userRepository repository.UserRepository) *AccountConsumer {
 	return &AccountConsumer{
-		jwtConfig:      jwtConfig,
 		userRepository: userRepository,
 	}
 }
@@ -38,11 +35,6 @@ func (c *AccountConsumer) DeleteTestAccount(ctx context.Context, msg []byte) err
 	err = c.userRepository.DeleteUser(ctx, tx, userID)
 	if err != nil {
 		return fmt.Errorf("删除用户失败: %v", err)
-	}
-
-	err = c.userRepository.SetInRedis(ctx, "test_account:deleted:"+string(msg), 0, c.jwtConfig.AccessToken.ExpireTime)
-	if err != nil {
-		return fmt.Errorf("设置用户ID为0失败: %v", err)
 	}
 
 	if err = tx.Commit(); err != nil {
