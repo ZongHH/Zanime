@@ -7,6 +7,7 @@ import (
 	"gateService/internal/infrastructure/database"
 	"gateService/internal/infrastructure/middleware/auth"
 	"gateService/internal/infrastructure/middleware/websocket"
+	"gateService/internal/interfaces/http/middleware/security"
 	"gateService/pkg/logger"
 	"gateService/pkg/mq/nsqpool"
 	"log"
@@ -44,7 +45,18 @@ type bases struct {
 	// - Cookie加密/解密
 	// - 防篡改验证
 	// - 安全属性设置（HttpOnly/Secure等）
+	// - 会话状态维护
+	// - Cookie生命周期管理
 	CookieManager *auth.CookieManager
+
+	// RateLimit 令牌桶限流器
+	// 功能包含：
+	// - 请求速率控制
+	// - 令牌生成与消费
+	// - 突发流量处理
+	// - 自定义限流策略
+	// - 分布式限流支持
+	RateLimit *security.TokenBucket
 
 	// ProducerPool NSQ消息队列生产者池
 	// 功能包含：
@@ -119,10 +131,11 @@ func initBases(cfg *config.Config) *bases {
 		RDB:              database.NewRDB(cfg),               // Redis连接（缓存/会话）
 		JwtManager:       auth.NewJWTManager(&cfg.JWT),       // JWT认证组件
 		CookieManager:    auth.NewCookieManager(&cfg.Cookie), // Cookie安全组件
-		ProducerPool:     producerPool,                       // 消息队列生产者
-		ScrapeClient:     scrapeClient,                       // 爬虫服务客户端
-		RecommendClient:  recommendClient,                    // 推荐服务客户端
-		WebSocketManager: websocketManager,                   // WebSocket管理器
+		RateLimit:        security.NewTokenBucket(),
+		ProducerPool:     producerPool,     // 消息队列生产者
+		ScrapeClient:     scrapeClient,     // 爬虫服务客户端
+		RecommendClient:  recommendClient,  // 推荐服务客户端
+		WebSocketManager: websocketManager, // WebSocket管理器
 	}
 }
 

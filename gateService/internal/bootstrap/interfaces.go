@@ -28,7 +28,7 @@ type interfaces struct {
 //   - 初始化完成的接口组件集合
 func initInterfaces(cfg *config.Config, bases *bases, services *services) *interfaces {
 	// 初始化 HTTP 路由控制器，注入所有依赖服务
-	router := router.NewController(cfg, bases.JwtManager, bases.CookieManager,
+	router := router.NewController(cfg, bases.JwtManager, bases.CookieManager, bases.RateLimit,
 		services.ProgressService, services.PostService, services.CommentService,
 		services.SearchService, services.UserService, services.ProductService,
 		services.OrderService, services.VideoService, services.WebSocketService)

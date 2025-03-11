@@ -88,9 +88,9 @@ func WithWaitTimeout(timeout time.Duration) TokenBucketOption {
 // NewTokenBucket 创建新的令牌桶限流器
 func NewTokenBucket(opts ...TokenBucketOption) *TokenBucket {
 	tb := &TokenBucket{
-		bucketSize:     100,                // 默认桶大小
-		generationRate: float64ToInt64(10), // 默认每秒生成10个令牌
-		bucket:         make(chan struct{}, 100),
+		bucketSize:     1000,                // 默认桶大小1000
+		generationRate: float64ToInt64(500), // 默认每秒生成500个令牌
+		bucket:         make(chan struct{}, 1000),
 		currentTokens:  0,
 		burstable:      0, // 默认不允许突发
 		waitTimeout:    0, // 默认不等待
@@ -144,9 +144,6 @@ func (t *TokenBucket) Start() {
 		for {
 			select {
 			case <-ticker.C:
-				// 使用原子操作读取生成速率
-				// rate := int64ToFloat64(atomic.LoadInt64(&t.generationRate))
-
 				// 计算此次应生成的令牌数（包含小数部分累积）
 				tokensToAdd := tokensPerInterval + fractionalTokens
 				newTokens := int(tokensToAdd)

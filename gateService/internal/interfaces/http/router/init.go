@@ -6,6 +6,7 @@ import (
 	"gateService/internal/infrastructure/config"
 	"gateService/internal/infrastructure/middleware/auth"
 	"gateService/internal/interfaces/http/handler"
+	"gateService/internal/interfaces/http/middleware/security"
 	"gateService/pkg/errors"
 	"log"
 	"net/http"
@@ -33,6 +34,7 @@ type Controller struct {
 	// 基础设施组件
 	jwtManager    *auth.JWTManager    // JWT令牌管理器，负责令牌的生成与验证
 	cookieManager *auth.CookieManager // Cookie管理器，处理Cookie的加密和验证
+	rateLimiting  *security.TokenBucket
 
 	// 业务模块处理器（接口处理层）
 	progressHandler *handler.ProgressHandler // 用户观看进度处理器
@@ -65,6 +67,7 @@ func NewController(
 	cfg *config.Config,
 	jwtManager *auth.JWTManager,
 	cookieManager *auth.CookieManager,
+	rateLimiting *security.TokenBucket,
 	progressService service.ProgressService,
 	postService service.PostService,
 	commentService service.CommentService,
@@ -77,9 +80,10 @@ func NewController(
 ) *Controller {
 	return &Controller{
 		cfg:              cfg,
-		engine:           gin.Default(), // 使用Gin默认配置初始化路由引擎
-		jwtManager:       jwtManager,
-		cookieManager:    cookieManager,
+		engine:           gin.Default(),                                 // 使用Gin默认配置初始化路由引擎
+		jwtManager:       jwtManager,                                    // jwt管理
+		cookieManager:    cookieManager,                                 // cookies管理
+		rateLimiting:     rateLimiting,                                  // 令牌桶限流
 		progressHandler:  handler.NewProgressHandler(progressService),   // 初始化进度处理器
 		postHandler:      handler.NewPostHandler(postService),           // 初始化帖子处理器
 		commentHandler:   handler.NewCommentHandler(commentService),     // 初始化评论处理器
@@ -122,15 +126,10 @@ func (c *Controller) Stop() {
 }
 
 func (c *Controller) initMiddlewares() {
-	// 安全中间件
-	// c.setupMiddleHandler(c.middleHandler.IpLimiter())
+	// 统一处理错误中间件
 	c.setupMiddleHandler(errors.ErrorHandler())
-	// c.setupMiddleHandler(security.XssProtection())
-	// c.setupMiddleHandler(security.CsrfProtection())
-	// c.setupMiddleHandler(security.SizeLimiter())
-	// c.setupMiddleHandler(security.TimeoutMiddleware(10 * time.Second))
-	// c.setupMiddleHandler(security.SensitiveFilter())
-
+	// 令牌桶限流中间件
+	c.setupMiddleHandler(security.RateLimitMiddleware(c.rateLimiting))
 }
 
 func (c *Controller) setupRoutes() {
